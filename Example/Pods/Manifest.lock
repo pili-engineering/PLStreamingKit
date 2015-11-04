@@ -1,0 +1,16 @@
+PODS:
+  - PLStreamingKit (1.0.0):
+    - PLStreamingKit/precompiled (= 1.0.0)
+  - PLStreamingKit/precompiled (1.0.0)
+
+DEPENDENCIES:
+  - PLStreamingKit (from `../`)
+
+EXTERNAL SOURCES:
+  PLStreamingKit:
+    :path: ../
+
+SPEC CHECKSUMS:
+  PLStreamingKit: f10a4379ec19283329799095f5cc7e9343a26970
+
+COCOAPODS: 0.39.0
