@@ -17,7 +17,6 @@
 - (void)streamingSessionSendingBufferDidEmpty:(id)session;
 - (void)streamingSessionSendingBufferDidFull:(id)session;
 - (void)streamingSession:(id)session sendingBufferDidDropItems:(NSArray *)items;
-- (void)streamingSession:(id)session sendingBufferCurrentDurationDidChange:(NSTimeInterval)currentDuration;
 
 @end
 

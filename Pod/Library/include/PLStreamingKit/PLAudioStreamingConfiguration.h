@@ -16,7 +16,8 @@
 
 @property (nonatomic, PL_STRONG) NSString   *audioQuality;
 @property (nonatomic, assign, readonly) PLStreamingAudioBitRate audioBitRate;
-@property (nonatomic, assign, readonly) NSUInteger audioSampleRate; // always 44100 right now.
+@property (nonatomic, assign, readonly) NSUInteger audioSampleRate; // 4800 for iPhone 6s family devices, 44100 for others
+@property (nonatomic, assign) UInt32    numberOfChannels;   // default as 2
 
 /// kPLAudioStreamingQualityHigh2 as default
 + (instancetype)defaultConfiguration;

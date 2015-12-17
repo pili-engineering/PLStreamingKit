@@ -112,20 +112,6 @@ self.session.delegate = self;
 [self.session stop];
 ```
 
-发送音视频数据
-
-```Objective-C
-// 发送视频数据
-[self.session pushVideoSampleBuffer:sampleBuffer];
-
-or
-
-[self.session pushPixelBuffer:pixelBuffer];
-
-// 发送音频数据
-[self.session pushAudioBuffer:audioBuffer];
-```
-
 销毁推流 session
 ```Objective-C
 [self.session destroy];
@@ -164,21 +150,21 @@ typedef NS_ENUM(NSUInteger, PLStreamingDimension) {
 /*!
  * @abstract Video streaming quality low 1
  *
- * @discussion 具体参数 fps: 12, profile level: baseline30, video bitrate: 150Kbps
+ * @discussion 具体参数 fps: 12, profile level: baseline31, video bitrate: 150Kbps
  */
 extern NSString *kPLVideoStreamingQualityLow1;
 
 /*!
  * @abstract Video streaming quality low 2
  *
- * @discussion 具体参数 fps: 15, profile level: baseline30, video bitrate: 264Kbps
+ * @discussion 具体参数 fps: 15, profile level: baseline31, video bitrate: 264Kbps
  */
 extern NSString *kPLVideoStreamingQualityLow2;
 
 /*!
  * @abstract Video streaming quality low 3
  *
- * @discussion 具体参数 fps: 15, profile level: baseline30, video bitrate: 350Kbps
+ * @discussion 具体参数 fps: 15, profile level: baseline31, video bitrate: 350Kbps
  */
 extern NSString *kPLVideoStreamingQualityLow3;
 
@@ -206,21 +192,21 @@ extern NSString *kPLVideoStreamingQualityMedium3;
 /*!
  * @abstract Video streaming quality high 1
  *
- * @discussion 具体参数 fps: 30, profile level: main30, video bitrate: 1200Kbps
+ * @discussion 具体参数 fps: 30, profile level: baseline31, video bitrate: 1200Kbps
  */
 extern NSString *kPLVideoStreamingQualityHigh1;
 
 /*!
  * @abstract Video streaming quality high 2
  *
- * @discussion 具体参数 fps: 30, profile level: main30, video bitrate: 1500Kbps
+ * @discussion 具体参数 fps: 30, profile level: baseline31, video bitrate: 1500Kbps
  */
 extern NSString *kPLVideoStreamingQualityHigh2;
 
 /*!
  * @abstract Video streaming quality high 3
  *
- * @discussion 具体参数 fps: 30, profile level: main30, video bitrate: 2000Kbps
+ * @discussion 具体参数 fps: 30, profile level: baseline31, video bitrate: 2000Kbps
  */
 extern NSString *kPLVideoStreamingQualityHigh3;
 ```
@@ -242,15 +228,15 @@ PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfigurati
 
 | Quality | FPS | ProfileLevel | Video BitRate(Kbps)|
 |---|---|---|---|
-|kPLVideoStreamingQualityLow1|12|Baseline 30|150|
-|kPLVideoStreamingQualityLow2|15|Baseline 30|264|
-|kPLVideoStreamingQualityLow3|15|Baseline 30|350|
+|kPLVideoStreamingQualityLow1|12|Baseline 31|150|
+|kPLVideoStreamingQualityLow2|15|Baseline 31|264|
+|kPLVideoStreamingQualityLow3|15|Baseline 31|350|
 |kPLVideoStreamingQualityMedium1|30|Baseline 31|512|
 |kPLVideoStreamingQualityMedium2|30|Baseline 31|800|
 |kPLVideoStreamingQualityMedium3|30|Baseline 31|1000|
-|kPLVideoStreamingQualityHigh1|30|Main 30|1200|
-|kPLVideoStreamingQualityHigh2|30|Main 30|1500|
-|kPLVideoStreamingQualityHigh3|30|Main 30|2000|
+|kPLVideoStreamingQualityHigh1|30|Baseline 31|1200|
+|kPLVideoStreamingQualityHigh2|30|Baseline 31|1500|
+|kPLVideoStreamingQualityHigh3|30|Baseline 31|2000|
 
 ### 音频编码参数
 
@@ -398,6 +384,11 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.0.1 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.0.1.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.0.1.md))
+    - 添加 HappyDNS, 优化 DNS 解析
+    - 优化 TCP 发送层, 减少发包失败触发的错误
+    - 修复推流时内存递增的问题
+    - 修复切换 Quality 时，播放卡住的问题
 - 1.0.0 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.0.0.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.0.0.md))
     - PLStreamingKit CocoaPods 版本发布
     - H.264 硬件编码

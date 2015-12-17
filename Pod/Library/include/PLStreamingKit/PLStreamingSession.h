@@ -17,6 +17,7 @@
 #import "PLBuffer.h"
 
 @class PLStreamingSession;
+@class QNDnsManager;
 
 @protocol PLStreamingSessionDelegate <NSObject>
 
@@ -74,6 +75,27 @@
                                     stream:(PLStream *)stream;
 
 /*!
+ * 初始化方法
+ *
+ * @param videoConfiguration 视频编码及推流的配置信息
+ *
+ * @param audioConfiguration 音频编码及推流的配置信息
+ *
+ * @param stream Stream 对象
+ *
+ * @param dns dnsmanager, 自定义dns查询，使用happydns
+ *
+ * @return PLCameraStreamingSession 实例
+ *
+ * @discussion 初始化方法会优先使用后置摄像头，如果发现设备没有后置摄像头，会判断是否有前置摄像头，如果都没有，便会返回 nil。
+ */
+- (instancetype)initWithVideoConfiguration:(PLVideoStreamingConfiguration *)videoConfiguration
+                        audioConfiguration:(PLAudioStreamingConfiguration *)audioConfiguration
+                                    stream:(PLStream *)stream
+                                       dns:(QNDnsManager*)dns;
+
+
+/*!
  * 销毁 session 的方法
  *
  * @discussion 销毁 StreamingSession 的方法，销毁前不需要调用 stop 方法。
@@ -111,6 +133,8 @@
 /*!
  * 处理音频数据
  */
+- (void)pushAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+
 - (void)pushAudioBuffer:(AudioBuffer *)audioBuffer;
 
 @end

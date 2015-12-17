@@ -64,10 +64,16 @@ static OSStatus handleInputBuffer(void *inRefCon,
     
 #warning 你需要设定 streamJSON 为自己服务端创建的流
     NSDictionary *streamJSON;
+    
     PLStream *stream = [PLStream streamWithJSON:streamJSON];
     
     self.session = [[PLStreamingSession alloc] initWithVideoConfiguration:videoConfiguration audioConfiguration:audioConfiguration stream:stream];
     self.session.delegate = self;
+    
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(handleInterruption:)
+                                                 name: AVAudioSessionInterruptionNotification
+                                               object: [AVAudioSession sharedInstance]];
     
     if (!self.audioOnly) {
         [self initCameraSource];
@@ -76,9 +82,26 @@ static OSStatus handleInputBuffer(void *inRefCon,
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.cameraCaptureSession stopRunning];
     AudioOutputUnitStop(self.componetInstance);
     [self.session destroy];
+}
+
+#pragma mark - Notification
+
+- (void)handleInterruption:(NSNotification *)notification {
+    if ([notification.name isEqualToString:AVAudioSessionInterruptionNotification]) {
+        NSLog(@"Interruption notification");
+        
+        if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] isEqualToNumber:[NSNumber numberWithInt:AVAudioSessionInterruptionTypeBegan]]) {
+            NSLog(@"InterruptionTypeBegan");
+        } else {
+            // the facetime iOS 9 has a bug: 1 does not send interrupt end 2 you can use application become active, and repeat set audio session acitve until success.  ref http://blog.corywiles.com/broken-facetime-audio-interruptions-in-ios-9
+            NSLog(@"InterruptionTypeEnded");
+            setSamplerate();
+        }
+    }
 }
 
 #pragma mark - Action
@@ -138,6 +161,21 @@ static OSStatus handleInputBuffer(void *inRefCon,
 
 #pragma mark - camera source
 
+static void setSamplerate(){
+    NSError *err;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setPreferredSampleRate:session.sampleRate error:&err];
+    if (err != nil) {
+        NSString *log = [NSString stringWithFormat:@"set samplerate failed, %@", err];
+        NSLog(@"%@", log);
+        return;
+    }
+    if (![session setActive:YES error:&err]) {
+        NSString *log = @"Failed to set audio session active.";
+        NSLog(@"%@ %@", log, err);
+    }
+}
+
 - (void)initCameraSource {
     __weak typeof(self) wself = self;
     void (^permissionGranted)(void) = ^{
@@ -169,11 +207,6 @@ static OSStatus handleInputBuffer(void *inRefCon,
         
         input = [[AVCaptureDeviceInput alloc] initWithDevice:strongSelf.cameraCaptureDevice error:nil];
         output = [[AVCaptureVideoDataOutput alloc] init];
-        
-        captureSession.sessionPreset = AVCaptureSessionPresetHigh;
-        
-        // setup output
-        output.videoSettings = @{(NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA)};
         
         dispatch_queue_t cameraQueue = dispatch_queue_create("com.pili.camera", 0);
         [output setSampleBufferDelegate:strongSelf queue:cameraQueue];
@@ -309,6 +342,8 @@ static OSStatus handleInputBuffer(void *inRefCon,
         }
         
         AudioOutputUnitStart(strongSelf.componetInstance);
+        
+        setSamplerate();
     };
     
     void (^noPermission)(void) = ^{
