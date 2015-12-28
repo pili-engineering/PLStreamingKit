@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "PLStreamingKit"
-  s.version          = "1.0.1"
+  s.version          = "1.0.2"
   s.summary          = "Pili iOS streaming framework via RTMP."
   s.homepage         = "https://github.com/pili-engineering/PLStreamingKit"
   s.license          = 'Apache License, Version 2.0'

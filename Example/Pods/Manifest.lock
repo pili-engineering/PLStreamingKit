@@ -1,9 +1,9 @@
 PODS:
   - HappyDNS (0.2.3)
-  - PLStreamingKit (1.0.1):
+  - PLStreamingKit (1.0.2):
     - HappyDNS
-    - PLStreamingKit/precompiled (= 1.0.1)
-  - PLStreamingKit/precompiled (1.0.1):
+    - PLStreamingKit/precompiled (= 1.0.2)
+  - PLStreamingKit/precompiled (1.0.2):
     - HappyDNS
 
 DEPENDENCIES:
@@ -15,6 +15,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   HappyDNS: 6d85942e64c28b4fa61f8c76580398f52d6d1d11
-  PLStreamingKit: 0dcf4d371698771672d112eb54426aae5328526e
+  PLStreamingKit: 0ef46996bd02ccb0d7dfc435724092974ff862a5
 
 COCOAPODS: 0.39.0
