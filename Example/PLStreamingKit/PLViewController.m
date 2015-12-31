@@ -59,7 +59,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    PLVideoStreamingConfiguration *videoConfiguration = self.audioOnly ? nil : [PLVideoStreamingConfiguration configurationWithUserDefineDimension:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
+    PLVideoStreamingConfiguration *videoConfiguration = self.audioOnly ? nil : [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
     PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
     
 #warning 你需要设定 streamJSON 为自己服务端创建的流
@@ -140,6 +140,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
 #pragma mark - <PLCameraStreamingSessionDelegate>
 
 - (void)streamingSession:(PLStreamingSession *)session streamStateDidChange:(PLStreamState)state {
+    // 除 PLStreamStateError 外的所有状态都会回调在这里
     NSString *log = [NSString stringWithFormat:@"Stream State: %s", stateNames[state]];
     NSLog(@"%@", log);
     if (PLStreamStateDisconnected == state) {
@@ -148,6 +149,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
 }
 
 - (void)streamingSession:(PLStreamingSession *)session didDisconnectWithError:(NSError *)error {
+    // PLStreamStateError 状态会回调在这里
     NSString *log = [NSString stringWithFormat:@"Stream State: Error. %@", error];
     NSLog(@"%@", log);
     [self.actionButton setTitle:@"Start" forState:UIControlStateNormal];

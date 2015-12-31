@@ -86,7 +86,7 @@ pod update
 //            ...
 //      }
 NSDictionary *streamJSON;
-PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithUserDefineDimension:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
+PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
 PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
 PLStream *stream = [PLStream streamWithJSON:streamJSON];
     
@@ -126,26 +126,6 @@ self.session.delegate = self;
 ### 视频编码参数
 
 ```Objective-C
-// 初始化编码配置类的实例需要的两个参数
-
-// 视频横纵比及分辨率
-typedef NS_ENUM(NSUInteger, PLStreamingDimension) {
-    PLStreamingDimension_16_9__416x234,
-    PLStreamingDimension_16_9__480x270,
-    PLStreamingDimension_16_9__640x360,
-    PLStreamingDimension_16_9__960x540,
-    PLStreamingDimension_16_9__1280x720,
-    PLStreamingDimension_16_9__1920x1080,
-    PLStreamingDimension_4_3__400x300,
-    PLStreamingDimension_4_3__480x360,
-    PLStreamingDimension_4_3__640x480,
-    PLStreamingDimension_4_3__960x720,
-    PLStreamingDimension_4_3__1280x960,
-    PLStreamingDimension_4_3__1920x1140,
-    PLStreamingDimension_UserDefine,
-    PLStreamingDimension_Default = PLStreamingDimension_4_3__640x480
-};
-
 // 视频推流质量
 /*!
  * @abstract Video streaming quality low 1
@@ -214,14 +194,14 @@ extern NSString *kPLVideoStreamingQualityHigh3;
 需要明确以上两者，便可以直接获取到最佳的视频编码配置。
 
 ```Objective-C
-// 默认情况下，PLStreamingKit 会使用 4:3 的 640x480 分辨率，及 kPLVideoStreamingQualityMedium1 作为参数初始化编码配置类的实例.
+// 该方法每次都会生成一个新的配置，不是单例方法。默认情况下，对应的参数为分辨率 (320, 480), video quality PLStreamingQualityMedium1
 PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration defaultConfiguration];
 
-// 当然你也可以自己指定，比如你希望输出直播视频是 16:9 的 960x540 的分辨率，并且你已经明确你需要的视频质量为 High1，你可以这样来设置编码配置
-PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithDimension:PLStreamingDimension_16_9__960x540 videoQuality:kPLVideoStreamingQualityHigh1];
+// 你也可以指定自己想要的分辨率和已有的 video quality 参数
+PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 480) videoQuality:kPLVideoStreamingQualityHigh1];
 
-// 当已有的分辨率无法满足你的需求时，你可以自己定义视频的大小
-PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithUserDefineDimension:CGSizeMake(width, height) videoQuality:kPLVideoStreamingQualityHigh1];
+// 当已有的分辨率无法满足你的需求时，你可以自己定义所有参数，但请务必确保你清楚参数的含义
+PLVideoStreamingConfiguration *videoConfiguration = [[PLVideoStreamingConfiguration alloc] initWithVideoSize:CGSizeMake(width, height) videoFrameRate:30 videoMaxKeyframeInterval:90 videoBitrate:1200 * 1000 videoProfileLevel:AVVideoProfileLevelH264Main32]];
 ```
 
 ### Video Quality 具体参数
@@ -274,7 +254,7 @@ PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfigurati
 |kPLAudioStreamingQualityHigh1|44|96|
 |kPLAudioStreamingQualityHigh2|44|128|
 
-在创建好编码配置对象后，就可以用它来初始化 ```PLCameraStreamingSession``` 了。
+在创建好编码配置对象后，就可以用它来初始化 ```PLStreamingSession``` 了。
 
 ## 流状态变更及处理处理
 
@@ -309,7 +289,6 @@ PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfigurati
 - (void)streamingSessionSendingBufferDidEmpty:(id)session;
 - (void)streamingSessionSendingBufferDidFull:(id)session;
 - (void)streamingSession:(id)session sendingBufferDidDropItems:(NSArray *)items;
-- (void)streamingSession:(id)session sendingBufferCurrentDurationDidChange:(NSTimeInterval)currentDuration;
 
 @end
 
@@ -350,26 +329,21 @@ buffer 的内容高过上阈值时，会回调
 
 `- (void)streamingSessionSendingBufferFillDidHigherThanHighThreshold:(id)session;`
 
-这是可以尝试降低 quality 的时机
+这是可以尝试切换到较低推流质量的 video configuration
 
 内容低于下阈值时，会回调 
 
 `- (void)streamingSessionSendingBufferFillDidLowerThanLowThreshold:(id)session;`
 
-这是可以尝试增加 quality 的时机。
-
-当了解了可以触发变更 quality 的时机，那么当你需要变更 quality 时，通过下面的方式来做调用 
+这是可以尝试切换到较高推流质量的 video configuration
 
 ```Objective-C
-[self.session beginUpdateConfiguration];
-self.session.videoConfiguration.videoQuality = kPLVideoStreamingQualityMedium2;
-self.session.audioConfiguration.audioQuality = kPLAudioStreamingQualityHigh1;
-[self.session endUpdateConfiguration];
+[self.session reloadVideoConfiguration:newConfiguraiton];
 ```
 
 ### 重要事项
 
-**在不断流切换 Video Quality 时需要保证 profileLevel 基本不变，即 baseline 只可与 baseline 的 quality 相互切换。以现在的 quality 为例， low 和 medium 的 quality 可以互相切换，但是 high 的 quality 不可以与 low 及 medium 在不断流的情况下无缝切换，否则会导致播放器花屏。**
+**在调用 `reloadVideoConfiguration:newConfiguraiton` 时，请务必确保 profileLevel 前后一致，如果该参数有变更，需要先调用 stop, 重新开始推流, 否则可能会因播放器差异而产生花屏等问题。**
 
 ## 文档支持
 
@@ -384,6 +358,10 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.1.0 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.1.0.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.1.0.md))
+    - 重构 `PLVideoStreamingConfiguration`, 提供给开发者更大的视频编码定制自由度
+    - `PLVideoStreamingConfiguration` 提供了 `validate` 方法, 确保 fast fail 减少开发者 app 携带不正确编码参数上线的可能性
+    - 优化推送音视频数据, 添加了编码处理完后的回调
 - 1.0.3 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.0.3.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.0.3.md))
     - 优化 dns 解析部分，补全 happydns 解析失败后的本地解析
 - 1.0.2 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.0.2.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.0.2.md))

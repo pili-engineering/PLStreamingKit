@@ -119,23 +119,30 @@
  */
 - (void)stop;
 
-- (void)beginUpdateConfiguration;
-- (void)endUpdateConfiguration;
+- (void)reloadVideoConfiguration:(PLVideoStreamingConfiguration *)videoConfiguration;
 
 // 处理发送数据
 /*!
  * 处理视频数据
  */
 - (void)pushVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+/// 注意: completion 回调不在主线程
+- (void)pushVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer completion:(void (^)(void))handler;
 
 - (void)pushPixelBuffer:(CVPixelBufferRef)pixelBuffer;
+/// 注意: completion 回调不在主线程
+- (void)pushPixelBuffer:(CVPixelBufferRef)pixelBuffer completion:(void (^)(void))handler;
 
 /*!
  * 处理音频数据
  */
 - (void)pushAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+/// 注意: completion 回调不在主线程
+- (void)pushAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer completion:(void (^)(void))handler;
 
 - (void)pushAudioBuffer:(AudioBuffer *)audioBuffer;
+/// 注意: completion 回调不在主线程
+- (void)pushAudioBuffer:(AudioBuffer *)audioBuffer completion:(void (^)(void))handler;
 
 @end
 
