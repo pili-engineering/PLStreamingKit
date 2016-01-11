@@ -61,7 +61,7 @@
 /// 推流 URL，只读属性
 @property (nonatomic, PL_STRONG, readonly) NSURL *pushURL;   // rtmp only now.
 
-/// 默认为 3s，可设置范围为 [1..20] 秒
+/// 默认为 3s，可设置范围为 [1..30] 秒
 @property (nonatomic, assign) NSTimeInterval    statusUpdateInterval;
 
 /*!
