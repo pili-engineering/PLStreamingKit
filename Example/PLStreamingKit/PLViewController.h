@@ -14,7 +14,8 @@
 @interface PLViewController : UIViewController
 <
 AVCaptureVideoDataOutputSampleBufferDelegate,
-PLStreamingSessionDelegate
+PLStreamingSessionDelegate,
+PLStreamingSendingBufferDelegate
 >
 
 @property (nonatomic, strong) PLStreamingSession    *session;

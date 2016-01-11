@@ -15,6 +15,7 @@
 #import "PLTypeDefines.h"
 #import "PLStream.h"
 #import "PLBuffer.h"
+#import "PLStreamStatus.h"
 
 @class PLStreamingSession;
 @class QNDnsManager;
@@ -28,12 +29,15 @@
 /// @abstract 因产生了某个 error 而断开时的回调
 - (void)streamingSession:(PLStreamingSession *)session didDisconnectWithError:(NSError *)error;
 
+/// @abstract 当开始推流时，会每间隔 3s 调用该回调方法来反馈该 3s 内的流状态，包括视频帧率、音频帧率、音视频总码率
+- (void)streamingSession:(PLStreamingSession *)session streamStatusDidUpdate:(PLStreamStatus *)status;
+
 @end
 
 @interface PLStreamingSession : NSObject
 
 /// 视频编码及推流配置
-@property (nonatomic, PL_STRONG) PLVideoStreamingConfiguration  *videoConfiguration;
+@property (nonatomic, copy) PLVideoStreamingConfiguration  *videoConfiguration;
 
 /// 音频编码及推流配置
 @property (nonatomic, PL_STRONG) PLAudioStreamingConfiguration  *audioConfiguration;
@@ -56,6 +60,9 @@
 
 /// 推流 URL，只读属性
 @property (nonatomic, PL_STRONG, readonly) NSURL *pushURL;   // rtmp only now.
+
+/// 默认为 3s，可设置范围为 [1..20] 秒
+@property (nonatomic, assign) NSTimeInterval    statusUpdateInterval;
 
 /*!
  * 初始化方法
@@ -152,15 +159,18 @@
 
 @property (nonatomic, PL_WEAK) id<PLStreamingSendingBufferDelegate> bufferDelegate;
 
-/// 最低阈值, [0..1], 不可超出这个范围, 默认为 0.5
-@property (nonatomic, assign) CGFloat    lowThreshold;
-
-/// 最高阈值, [0..1], 不可超出这个范围, 默认为 1
-@property (nonatomic, assign) CGFloat    highThreshold;
+/// [0..1], 不可超出这个范围, 默认为 0.5
+@property (nonatomic, assign) CGFloat threshold;
 
 /// 默认为 300
 @property (nonatomic, assign) NSUInteger    maxCount;
 @property (nonatomic, assign, readonly) NSUInteger    currentCount;
+
+/// 已弃用，请使用 threshold 属性
+@property (nonatomic, assign) CGFloat    lowThreshold DEPRECATED_ATTRIBUTE;
+
+/// 已弃用，请使用 threshold 属性
+@property (nonatomic, assign) CGFloat    highThreshold DEPRECATED_ATTRIBUTE;
 
 @end
 
@@ -174,5 +184,13 @@
 @interface PLStreamingSession (Application)
 
 @property (nonatomic, assign, getter=isIdleTimerDisable) BOOL  idleTimerDisable;   // default as YES.
+
+@end
+
+#pragma mark - Category (Info)
+
+@interface PLStreamingSession (Info)
+
++ (NSString *)versionInfo;
 
 @end

@@ -69,6 +69,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
     
     self.session = [[PLStreamingSession alloc] initWithVideoConfiguration:videoConfiguration audioConfiguration:audioConfiguration stream:stream];
     self.session.delegate = self;
+    self.session.bufferDelegate = self;
     
     [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector: @selector(handleInterruption:)
@@ -137,6 +138,16 @@ static OSStatus handleInputBuffer(void *inRefCon,
     }
 }
 
+#pragma mark - <PLStreamingSendingBufferDelegate>
+
+- (void)streamingSessionSendingBufferDidEmpty:(id)session {
+    NSLog(@"Sending buffer empty");
+}
+
+- (void)streamingSessionSendingBufferDidFull:(id)session {
+    NSLog(@"Sending buffer full");
+}
+
 #pragma mark - <PLCameraStreamingSessionDelegate>
 
 - (void)streamingSession:(PLStreamingSession *)session streamStateDidChange:(PLStreamState)state {
@@ -153,6 +164,10 @@ static OSStatus handleInputBuffer(void *inRefCon,
     NSString *log = [NSString stringWithFormat:@"Stream State: Error. %@", error];
     NSLog(@"%@", log);
     [self.actionButton setTitle:@"Start" forState:UIControlStateNormal];
+}
+
+- (void)streamingSession:(PLStreamingSession *)session streamStatusDidUpdate:(PLStreamStatus *)status {
+    NSLog(@"%@", status);
 }
 
 #pragma mark - <AVCaptureVideoDataOutputSampleBufferDelegate>

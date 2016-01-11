@@ -1,6 +1,6 @@
 {
   "name": "PLStreamingKit",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "summary": "Pili iOS streaming framework via RTMP.",
   "homepage": "https://github.com/pili-engineering/PLStreamingKit",
   "license": "Apache License, Version 2.0",
@@ -9,7 +9,7 @@
   },
   "source": {
     "git": "https://github.com/pili-engineering/PLStreamingKit.git",
-    "tag": "v1.1.0"
+    "tag": "v1.1.1"
   },
   "platforms": {
     "ios": "7.0"
@@ -44,10 +44,7 @@
         "Pod/Library/lib/*.a"
       ],
       "vendored_libraries": "Pod/Library/lib/*.a",
-      "libraries": "PLStreamingKit",
-      "xcconfig": {
-        "HEADER_SEARCH_PATHS": "${PODS_ROOT}/PLStreamingKit/PLStreamingKit/lib/include"
-      }
+      "libraries": "PLStreamingKit"
     }
   ]
 }

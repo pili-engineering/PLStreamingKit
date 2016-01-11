@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "PLStreamingKit"
-  s.version          = "1.1.0"
+  s.version          = "1.1.1"
   s.summary          = "Pili iOS streaming framework via RTMP."
   s.homepage         = "https://github.com/pili-engineering/PLStreamingKit"
   s.license          = 'Apache License, Version 2.0'
@@ -31,6 +31,5 @@ Pod::Spec.new do |s|
     ss.preserve_paths         = "Pod/Library/include/**/*.h", 'Pod/Library/lib/*.a'
     ss.vendored_libraries   = 'Pod/Library/lib/*.a'
     ss.libraries = 'PLStreamingKit'
-    ss.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/PLStreamingKit/lib/include" }
   end
 end

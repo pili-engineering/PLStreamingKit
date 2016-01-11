@@ -121,7 +121,7 @@ self.session.delegate = self;
 
 移动端因网络环境不稳定及用户电量宝贵等原因，并不建议直接使用最高码率和分辨率来做推流，以最佳编码参数来做设置可以带来更好的推流效果和用户体验。
 
-你无需辛苦的一个个参数设置，```PLStreamingKit``` 提供了一个编码配置的类来帮你快速完成配置。
+如果你不能确定该如何配置各个编码参数，也不用担心，```PLStreamingKit``` 提供了一个编码配置的类来帮你快速完成配置，你可以通过使用 SDK 预先定义好的 quality 来构建编码推流配置。
 
 ### 视频编码参数
 
@@ -191,7 +191,7 @@ extern NSString *kPLVideoStreamingQualityHigh2;
 extern NSString *kPLVideoStreamingQualityHigh3;
 ```
 
-需要明确以上两者，便可以直接获取到最佳的视频编码配置。
+需要明确以上两者，便可以获取到最佳的视频编码配置。
 
 ```Objective-C
 // 该方法每次都会生成一个新的配置，不是单例方法。默认情况下，对应的参数为分辨率 (320, 480), video quality PLStreamingQualityMedium1
@@ -264,14 +264,18 @@ PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfigurati
 - (void)streamingSession:(PLStreamingSession *)session streamStateDidChange:(PLStreamState)state {
     // 当流状态变更为非 Error 时，会回调到这里
 }
-
 ```
 
 ```Objective-C
 - (void)streamingSession:(PLStreamingSession *)session didDisconnectWithError:(NSError *)error {
     // 当流状态变为 Error, 会携带 NSError 对象回调这个方法
 }
+```
 
+```Objective-C
+- (void)streamingSession:(PLStreamingSession *)session streamStatusDidUpdate:(PLStreamStatus *)status {
+    // 当开始推流时，会每间隔 3s 调用该回调方法来反馈该 3s 内的流状态，包括视频帧率、音频帧率、音视频总码率
+}
 ```
 
 ## 变更推流质量及策略
@@ -284,11 +288,8 @@ PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfigurati
 // BufferDelegate
 @protocol PLStreamingSendingBufferDelegate <NSObject>
 
-- (void)streamingSessionSendingBufferFillDidLowerThanLowThreshold:(id)session;
-- (void)streamingSessionSendingBufferFillDidHigherThanHighThreshold:(id)session;
 - (void)streamingSessionSendingBufferDidEmpty:(id)session;
 - (void)streamingSessionSendingBufferDidFull:(id)session;
-- (void)streamingSession:(id)session sendingBufferDidDropItems:(NSArray *)items;
 
 @end
 
@@ -297,11 +298,8 @@ PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfigurati
 
 @property (nonatomic, PL_WEAK) id<PLStreamingSendingBufferDelegate> bufferDelegate;
 
-/// 最低阈值, [0..1], 不可超出这个范围, 默认为 0.5
-@property (nonatomic, assign) CGFloat    lowThreshold;
-
-/// 最高阈值, [0..1], 不可超出这个范围, 默认为 1.0
-@property (nonatomic, assign) CGFloat    highThreshold;
+/// [0..1], 不可超出这个范围, 默认为 0.5
+@property (nonatomic, assign) CGFloat    threshold;
 
 /// Buffer 的最大长度, 默认为 300
 @property (nonatomic, assign) NSTimeInterval    maxCount;
@@ -311,7 +309,7 @@ PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfigurati
 @end
 ```
 
-buffer 是一个可以缓存待发送内容的队列，它按照帧数作为缓存长度的判定，可以通过 maxCount 来读取和设定，buffer 的下阈值和上阈值设定体现你期望的变更推流质量的策略，默认下阈值为 buffer 的 50%(0.5)，上阈值为 100%（1.0）。
+buffer 是一个可以缓存待发送内容的队列，它按照帧数作为缓存长度的判定，可以通过 maxCount 来读取和设定，buffer 的阈值设定体现你期望的变更推流质量的策略，默认阈值为 buffer 的 50%(0.5)。
 
 当 buffer 变为空时，会回调
 
@@ -321,21 +319,7 @@ buffer 是一个可以缓存待发送内容的队列，它按照帧数作为缓�
 
 `- (void)streamingSessionSendingBufferDidFull:(id)session;`
 
-如果 buffer 已经满了，但是还有数据传入时，会触发丢帧，会调用
-
-`- (void)streamingSession:(id)session sendingBufferDidDropItems:(NSArray *)items;`
-
-buffer 的内容高过上阈值时，会回调 
-
-`- (void)streamingSessionSendingBufferFillDidHigherThanHighThreshold:(id)session;`
-
-这是可以尝试切换到较低推流质量的 video configuration
-
-内容低于下阈值时，会回调 
-
-`- (void)streamingSessionSendingBufferFillDidLowerThanLowThreshold:(id)session;`
-
-这是可以尝试切换到较高推流质量的 video configuration
+当你希望在 streamStatus 变化，buffer empty 或者 buffer full 时变化 video configuration，可以调用 session 的 reloadVideoConfiguration: 方法
 
 ```Objective-C
 [self.session reloadVideoConfiguration:newConfiguraiton];
@@ -343,7 +327,7 @@ buffer 的内容高过上阈值时，会回调
 
 ### 重要事项
 
-**在调用 `reloadVideoConfiguration:newConfiguraiton` 时，请务必确保 profileLevel 前后一致，如果该参数有变更，需要先调用 stop, 重新开始推流, 否则可能会因播放器差异而产生花屏等问题。**
+**在调用 `reloadVideoConfiguration:newConfiguraiton` 时，请务必确保 profileLevel 和 videoSize 前后一致，如果该参数有变更，需要先调用 stop, 重新开始推流, 否则可能会因播放器对解码器构建的差异而产生花屏、绿屏等问题。**
 
 ## 文档支持
 
@@ -358,6 +342,10 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.1.1 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.1.1.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.1.1.md))
+    - 修复因 video configuration rtmp 发送时没读渠道发送 onMetaData 只有音频信息的问题
+    - 添加版本信息读取方法
+    - 添加实施推流状态的返回，便于开发者从推流端获取推流信息
 - 1.1.0 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.1.0.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.1.0.md))
     - 重构 `PLVideoStreamingConfiguration`, 提供给开发者更大的视频编码定制自由度
     - `PLVideoStreamingConfiguration` 提供了 `validate` 方法, 确保 fast fail 减少开发者 app 携带不正确编码参数上线的可能性
