@@ -20,10 +20,32 @@
 @class PLStreamingSession;
 @class QNDnsManager;
 
+/*!
+ * @protocol PLStreamingSessionDelegate
+ *
+ * PLStreamingSession 实例的代理对象必须实现 PLStreamingSessionDelegate 协议。
+ *
+ * @since v1.0.0
+ */
 @protocol PLStreamingSessionDelegate <NSObject>
 
 @optional
-/// @abstract 流状态已变更的回调
+/*!
+ * 告知代理对象流的状态已经变更。
+ *
+ * @discussion 该代理方法只会在以下几种状态时触发
+ *      PLStreamStateConnecting,
+ *      PLStreamStateConnected,
+ *      PLStreamStateDisconnecting,
+ *      PLStreamStateDisconnected
+ *
+ * @param session
+ *      调用该代理方法的 PLStreamingSession 对象
+ * @param state
+ *      已变更的状态
+ *
+ * @since v1.0.0
+ */
 - (void)streamingSession:(PLStreamingSession *)session streamStateDidChange:(PLStreamState)state;
 
 /// @abstract 因产生了某个 error 而断开时的回调
