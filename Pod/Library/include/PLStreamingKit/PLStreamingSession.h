@@ -153,6 +153,16 @@
 
 @end
 
+@interface PLStreamingSession (Network)
+
+/// 接收超时，默认为 15s, 设定最小数值不得低于 3s，否则不变更
+@property (nonatomic, assign) int   receiveTimeout;
+
+/// 发送超时，默认为 3s, 设定最小数值不得低于 3s，否则不变更
+@property (nonatomic, assign) int   sendTimeout;
+
+@end
+
 #pragma mark - Category (SendingBuffer)
 
 @interface PLStreamingSession (SendingBuffer)
