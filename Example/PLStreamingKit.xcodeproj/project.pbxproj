@@ -23,6 +23,7 @@
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		E91AE0111BEA1A3100F9975B /* PLMasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E91AE0101BEA1A3100F9975B /* PLMasterViewController.m */; };
 		E91AE0131BEA1C8800F9975B /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E91AE0121BEA1C8800F9975B /* Launch Screen.storyboard */; };
+		E9F4CB9F1C8E855400E0ED62 /* PLGPUImageFilterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9F4CB9E1C8E855400E0ED62 /* PLGPUImageFilterViewController.m */; };
 		FC99D2FF0F1DEFA417B91209 /* Pods_PLStreamingKit_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E449E59F48A1584FA0A869 /* Pods_PLStreamingKit_Tests.framework */; };
 		FD7396CC6505AE1E7CF686FE /* Pods_PLStreamingKit_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 937D1D4B014D69216BB37C4D /* Pods_PLStreamingKit_Example.framework */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,8 @@
 		E91AE00F1BEA1A3100F9975B /* PLMasterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMasterViewController.h; sourceTree = "<group>"; };
 		E91AE0101BEA1A3100F9975B /* PLMasterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMasterViewController.m; sourceTree = "<group>"; };
 		E91AE0121BEA1C8800F9975B /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		E9F4CB9D1C8E855400E0ED62 /* PLGPUImageFilterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLGPUImageFilterViewController.h; sourceTree = "<group>"; };
+		E9F4CB9E1C8E855400E0ED62 /* PLGPUImageFilterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLGPUImageFilterViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +156,8 @@
 				E91AE0101BEA1A3100F9975B /* PLMasterViewController.m */,
 				6003F5A5195388D20070C39A /* PLViewController.h */,
 				6003F5A6195388D20070C39A /* PLViewController.m */,
+				E9F4CB9D1C8E855400E0ED62 /* PLGPUImageFilterViewController.h */,
+				E9F4CB9E1C8E855400E0ED62 /* PLGPUImageFilterViewController.m */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
 			);
@@ -400,6 +405,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* PLAppDelegate.m in Sources */,
+				E9F4CB9F1C8E855400E0ED62 /* PLGPUImageFilterViewController.m in Sources */,
 				6003F5A7195388D20070C39A /* PLViewController.m in Sources */,
 				E91AE0111BEA1A3100F9975B /* PLMasterViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
