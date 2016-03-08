@@ -18,12 +18,14 @@ PLStreamingKit 不包括摄像头、麦克风等设备相关的资源获取，�
 - [x] 音视频配置分离
 - [x] 推流时可变码率
 - [x] 提供发送 buffer
+- [x] 与 GPUImage 轻松对接
 
 ## 内容摘要
 
 - [快速开始](#快速开始)
 	- [配置工程](#配置工程)
 	- [示例代码](#示例代码)
+- [GPUImage 视频滤镜](#GPUImage-视频滤镜)
 - [编码参数](#编码参数)
 - [流状态变更及错误处理](#流状态变更及处理处理)
 - [变更推流质量及策略](#变更推流质量及策略)
@@ -116,6 +118,63 @@ self.session.delegate = self;
 ```Objective-C
 [self.session destroy];
 ```
+
+## GPUImage 视频滤镜
+
+GPUImage 作为当前 iOS 平台使用率最高的图像渲染引擎，可以轻松与 PLStreamingKit 对接，利用 GPUImage 已有的 125 个内置滤镜满足大部分的直播滤镜需求。
+
+### 接入 GPUImage
+
+接入工程的方式详见官方 README.md https://github.com/BradLarson/GPUImage
+
+### 对 GPUImage 做简单的更改
+
+GPUImage 中，没有特别的暴露 CVPixelBufferRef，所以默认情况下无法直接取到，在保持其架构整体不变并且数据访问安全的前提下，我们提供了最小代价的修改方案，只需要添加 13 行代码，详见 https://github.com/BradLarson/GPUImage/pull/2225/files。
+
+### 滤镜实例
+
+```Objective-C
+// 使用 GPUImageVideoCamera 获取摄像头数据
+GPUImageVideoCamera *videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
+videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+
+// 创建一个 filter
+GPUImageSketchFilter *filter = [[GPUImageSketchFilter alloc] init];
+__weak typeof(self) wself = self;
+filter.frameProcessingCompletionBlock = ^(GPUImageOutput *output, CMTime time) {
+    __strong typeof(wself) strongSelf = wself;
+    if (strongSelf && PLStreamStateConnected == strongSelf.session.streamState) {
+        // 从 filter 中读取 GPUImageFramebuffer 对象
+        GPUImageFramebuffer *imageFramebuffer = output.framebufferForOutput;
+        
+        // 通过上面添加的方法获取到 CVPixelBufferReft
+        CVPixelBufferRef pixelBuffer = [imageFramebuffer renderTarget];
+        
+        if (pixelBuffer) {
+            CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+            CVPixelBufferRetain(pixelBuffer);
+            
+            // 发送视频数据
+            [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
+                CVPixelBufferRelease(pixelBuffer);
+                CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+            }];
+        }
+    }
+};
+
+GPUImageView *filteredVideoView = [[GPUImageView alloc] initWithFrame:(CGRect){0, 64, width, height}];
+
+// Add the view somewhere so it's visible
+[self.view addSubview:filteredVideoView];
+
+[videoCamera addTarget:filter];
+[filter addTarget:filteredVideoView];
+
+[videoCamera startCameraCapture];
+```
+
+完整的可运行代码在 Example 中。
 
 ## 编码参数
 
