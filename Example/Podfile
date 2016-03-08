@@ -3,11 +3,9 @@ use_frameworks!
 
 target 'PLStreamingKit_Example', :exclusive => true do
   pod "PLStreamingKit", :path => "../"
-  pod "GPUImage", :git => "https://github.com/0dayZh/GPUImage.git"
+  pod "GPUImage"
 end
 
 target 'PLStreamingKit_Tests', :exclusive => true do
   pod "PLStreamingKit", :path => "../"
-
-
 end
