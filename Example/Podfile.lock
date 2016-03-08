@@ -1,4 +1,5 @@
 PODS:
+  - GPUImage (0.1.7)
   - HappyDNS (0.2.3)
   - PLStreamingKit (1.1.5):
     - HappyDNS
@@ -7,6 +8,7 @@ PODS:
     - HappyDNS
 
 DEPENDENCIES:
+  - GPUImage
   - PLStreamingKit (from `../`)
 
 EXTERNAL SOURCES:
@@ -14,6 +16,7 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
+  GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
   HappyDNS: 6d85942e64c28b4fa61f8c76580398f52d6d1d11
   PLStreamingKit: 3792348c354af2271629eeb154e0e83774f34c07
 
