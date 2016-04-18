@@ -37,24 +37,6 @@ PLStreamingSendingBufferDelegate
     videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
     
     GPUImageSketchFilter *filter = [[GPUImageSketchFilter alloc] init];
-    __weak typeof(self) wself = self;
-    filter.frameProcessingCompletionBlock = ^(GPUImageOutput *output, CMTime time) {
-        __strong typeof(wself) strongSelf = wself;
-        if (strongSelf && PLStreamStateConnected == strongSelf.session.streamState) {
-            GPUImageFramebuffer *imageFramebuffer = output.framebufferForOutput;
-            CVPixelBufferRef pixelBuffer = [imageFramebuffer renderTarget];
-            
-            if (pixelBuffer) {
-                CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-                CVPixelBufferRetain(pixelBuffer);
-                
-                [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
-                    CVPixelBufferRelease(pixelBuffer);
-                    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-                }];
-            }
-        }
-    };
     
     CGRect bounds = [UIScreen mainScreen].bounds;
     CGFloat width = CGRectGetWidth(bounds);
@@ -67,6 +49,27 @@ PLStreamingSendingBufferDelegate
     [videoCamera addTarget:filter];
     [filter addTarget:filteredVideoView];
     
+    GPUImageRawDataOutput *rawDataOutput = [[GPUImageRawDataOutput alloc] initWithImageSize:CGSizeMake(480, 640) resultsInBGRAFormat:YES];
+    [filter addTarget:rawDataOutput];
+    __weak GPUImageRawDataOutput *weakOutput = rawDataOutput;
+    __weak typeof(self) wself = self;
+    [rawDataOutput setNewFrameAvailableBlock:^{
+        __strong GPUImageRawDataOutput *strongOutput = weakOutput;
+        __strong typeof(wself) strongSelf = wself;
+        [strongOutput lockFramebufferForReading];
+        GLubyte *outputBytes = [strongOutput rawBytesForImage];
+        NSInteger bytesPerRow = [strongOutput bytesPerRowInOutput];
+        CVPixelBufferRef pixelBuffer = NULL;
+        CVPixelBufferCreateWithBytes(kCFAllocatorDefault, 480, 640, kCVPixelFormatType_32BGRA, outputBytes, bytesPerRow, nil, nil, nil, &pixelBuffer);
+        [strongOutput unlockFramebufferAfterReading];
+        if(pixelBuffer == NULL) {
+            return ;
+        }
+        
+        [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
+            CVPixelBufferRelease(pixelBuffer);
+        }];
+    }];
     [videoCamera startCameraCapture];
     
     self.videoCamera = videoCamera;
