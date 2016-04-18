@@ -127,50 +127,52 @@ GPUImage 作为当前 iOS 平台使用率最高的图像渲染引擎，可以轻
 
 接入工程的方式详见官方 README.md https://github.com/BradLarson/GPUImage
 
-### 对 GPUImage 做简单的更改
-
-GPUImage 中，没有特别的暴露 CVPixelBufferRef，所以默认情况下无法直接取到，在保持其架构整体不变并且数据访问安全的前提下，我们提供了最小代价的修改方案，只需要添加 13 行代码，详见 https://github.com/BradLarson/GPUImage/pull/2225/files。
-
 ### 滤镜实例
 
 ```Objective-C
 // 使用 GPUImageVideoCamera 获取摄像头数据
 GPUImageVideoCamera *videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
 videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-
+    
 // 创建一个 filter
 GPUImageSketchFilter *filter = [[GPUImageSketchFilter alloc] init];
-__weak typeof(self) wself = self;
-filter.frameProcessingCompletionBlock = ^(GPUImageOutput *output, CMTime time) {
-    __strong typeof(wself) strongSelf = wself;
-    if (strongSelf && PLStreamStateConnected == strongSelf.session.streamState) {
-        // 从 filter 中读取 GPUImageFramebuffer 对象
-        GPUImageFramebuffer *imageFramebuffer = output.framebufferForOutput;
-        
-        // 通过上面添加的方法获取到 CVPixelBufferReft
-        CVPixelBufferRef pixelBuffer = [imageFramebuffer renderTarget];
-        
-        if (pixelBuffer) {
-            CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-            CVPixelBufferRetain(pixelBuffer);
-            
-            // 发送视频数据
-            [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
-                CVPixelBufferRelease(pixelBuffer);
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-            }];
-        }
-    }
-};
-
+    
+CGRect bounds = [UIScreen mainScreen].bounds;
+CGFloat width = CGRectGetWidth(bounds);
+CGFloat height = width * 640.0 / 480.0;
 GPUImageView *filteredVideoView = [[GPUImageView alloc] initWithFrame:(CGRect){0, 64, width, height}];
-
+    
 // Add the view somewhere so it's visible
 [self.view addSubview:filteredVideoView];
-
+    
 [videoCamera addTarget:filter];
 [filter addTarget:filteredVideoView];
-
+    
+// 创建一个 GPUImageRawDataOutput 作为 filter 的 Target
+GPUImageRawDataOutput *rawDataOutput = [[GPUImageRawDataOutput alloc] initWithImageSize:CGSizeMake(480, 640) resultsInBGRAFormat:YES];
+[filter addTarget:rawDataOutput];
+__unsafe_unretained GPUImageRawDataOutput * weakOutput = rawDataOutput;
+__weak typeof(self) wself = self;
+[rawDataOutput setNewFrameAvailableBlock:^{
+    __strong typeof(wself) strongSelf = wself;
+    [weakOutput lockFramebufferForReading];
+        
+    //从 GPUImageRawDataOutput 中获取 CVPixelBufferRef
+    GLubyte *outputBytes = [weakOutput rawBytesForImage];
+    NSInteger bytesPerRow = [weakOutput bytesPerRowInOutput];
+    CVPixelBufferRef pixelBuffer = NULL;
+    CVPixelBufferCreateWithBytes(kCFAllocatorDefault, 480, 640, kCVPixelFormatType_32BGRA, outputBytes, bytesPerRow, nil, nil, nil, &pixelBuffer);
+    [weakOutput unlockFramebufferAfterReading];
+    if(pixelBuffer == NULL) {
+        return ;
+    }
+        
+    // 发送视频数据
+    [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
+        CVPixelBufferRelease(pixelBuffer);
+    }];
+}];
+    
 [videoCamera startCameraCapture];
 ```
 
