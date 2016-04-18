@@ -25,7 +25,7 @@ PLStreamingKit 不包括摄像头、麦克风等设备相关的资源获取，�
 - [快速开始](#快速开始)
 	- [配置工程](#配置工程)
 	- [示例代码](#示例代码)
-- [GPUImage 视频滤镜](#GPUImage-视频滤镜)
+- [GPUImage 视频滤镜](#GPUImage)
 - [编码参数](#编码参数)
 - [流状态变更及错误处理](#流状态变更及处理处理)
 - [变更推流质量及策略](#变更推流质量及策略)
@@ -119,7 +119,7 @@ self.session.delegate = self;
 [self.session destroy];
 ```
 
-## GPUImage 视频滤镜
+## <a name="GPUImage"></a>GPUImage 视频滤镜
 
 GPUImage 作为当前 iOS 平台使用率最高的图像渲染引擎，可以轻松与 PLStreamingKit 对接，利用 GPUImage 已有的 125 个内置滤镜满足大部分的直播滤镜需求。
 
@@ -151,18 +151,19 @@ GPUImageView *filteredVideoView = [[GPUImageView alloc] initWithFrame:(CGRect){0
 // 创建一个 GPUImageRawDataOutput 作为 filter 的 Target
 GPUImageRawDataOutput *rawDataOutput = [[GPUImageRawDataOutput alloc] initWithImageSize:CGSizeMake(480, 640) resultsInBGRAFormat:YES];
 [filter addTarget:rawDataOutput];
-__unsafe_unretained GPUImageRawDataOutput * weakOutput = rawDataOutput;
+__weak GPUImageRawDataOutput *weakOutput = rawDataOutput;
 __weak typeof(self) wself = self;
 [rawDataOutput setNewFrameAvailableBlock:^{
+    __strong GPUImageRawDataOutput *strongOutput = weakOutput;
     __strong typeof(wself) strongSelf = wself;
-    [weakOutput lockFramebufferForReading];
+    [strongOutput lockFramebufferForReading];
         
     //从 GPUImageRawDataOutput 中获取 CVPixelBufferRef
-    GLubyte *outputBytes = [weakOutput rawBytesForImage];
-    NSInteger bytesPerRow = [weakOutput bytesPerRowInOutput];
+    GLubyte *outputBytes = [strongOutput rawBytesForImage];
+    NSInteger bytesPerRow = [strongOutput bytesPerRowInOutput];
     CVPixelBufferRef pixelBuffer = NULL;
     CVPixelBufferCreateWithBytes(kCFAllocatorDefault, 480, 640, kCVPixelFormatType_32BGRA, outputBytes, bytesPerRow, nil, nil, nil, &pixelBuffer);
-    [weakOutput unlockFramebufferAfterReading];
+    [strongOutput unlockFramebufferAfterReading];
     if(pixelBuffer == NULL) {
         return ;
     }

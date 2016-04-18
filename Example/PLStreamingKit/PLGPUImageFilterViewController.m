@@ -51,16 +51,17 @@ PLStreamingSendingBufferDelegate
     
     GPUImageRawDataOutput *rawDataOutput = [[GPUImageRawDataOutput alloc] initWithImageSize:CGSizeMake(480, 640) resultsInBGRAFormat:YES];
     [filter addTarget:rawDataOutput];
-    __unsafe_unretained GPUImageRawDataOutput * weakOutput = rawDataOutput;
+    __weak GPUImageRawDataOutput *weakOutput = rawDataOutput;
     __weak typeof(self) wself = self;
     [rawDataOutput setNewFrameAvailableBlock:^{
+        __strong GPUImageRawDataOutput *strongOutput = weakOutput;
         __strong typeof(wself) strongSelf = wself;
-        [weakOutput lockFramebufferForReading];
-        GLubyte *outputBytes = [weakOutput rawBytesForImage];
-        NSInteger bytesPerRow = [weakOutput bytesPerRowInOutput];
+        [strongOutput lockFramebufferForReading];
+        GLubyte *outputBytes = [strongOutput rawBytesForImage];
+        NSInteger bytesPerRow = [strongOutput bytesPerRowInOutput];
         CVPixelBufferRef pixelBuffer = NULL;
         CVPixelBufferCreateWithBytes(kCFAllocatorDefault, 480, 640, kCVPixelFormatType_32BGRA, outputBytes, bytesPerRow, nil, nil, nil, &pixelBuffer);
-        [weakOutput unlockFramebufferAfterReading];
+        [strongOutput unlockFramebufferAfterReading];
         if(pixelBuffer == NULL) {
             return ;
         }
