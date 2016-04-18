@@ -37,7 +37,6 @@ PLStreamingSendingBufferDelegate
     videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
     
     GPUImageSketchFilter *filter = [[GPUImageSketchFilter alloc] init];
-//    GPUImageColorInvertFilter *filter = [[GPUImageColorInvertFilter alloc] init];
     
     CGRect bounds = [UIScreen mainScreen].bounds;
     CGFloat width = CGRectGetWidth(bounds);
