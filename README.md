@@ -393,6 +393,16 @@ buffer 是一个可以缓存待发送内容的队列，它按照帧数作为缓�
 
 **在调用 `reloadVideoConfiguration:newConfiguraiton` 时，请务必确保 profileLevel 和 videoSize 前后一致，如果该参数有变更，需要先调用 stop, 重新开始推流, 否则可能会因播放器对解码器构建的差异而产生花屏、绿屏等问题。**
 
+## 手动导入到工程
+我们建议使用 CocoaPods 导入，如果由于特殊原因需要手动导入，可以按照如下步骤进行：
+
+- 将 Pod 目录下的文件加入到工程中；
+- 将 https://github.com/qiniu/happy-dns-objc HappyDNS 目录下的所有文件加入到工程中； 
+- 将 https://github.com/pili-engineering/pili-librtmp Pod 目录下的所有文件加入到工程中；
+- 在工程对应 TARGET 中，右侧 Tab 选择 "Build Phases"，在 "Link Binary With Libraries" 中加入 UIKit、AVFoundation、CoreGraphics、CFNetwork、CoreMedia、AudioToolbox 这些 framework，并加入 libc++.tdb、libz.tdb 及 libresolv.tbd；
+- 在工程对应 TARGET 中，右侧 Tab 选择 "Build Settings"，在 "Other Linker Flags" 中加入 "-ObjC" 选项；
+
+
 ## 文档支持
 
 PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
