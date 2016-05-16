@@ -85,7 +85,9 @@ strip_invalid_archs() {
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-PLStreamingKit_Tests/HappyDNS.framework"
+  install_framework "Pods-PLStreamingKit_Tests/pili_librtmp.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-PLStreamingKit_Tests/HappyDNS.framework"
+  install_framework "Pods-PLStreamingKit_Tests/pili_librtmp.framework"
 fi

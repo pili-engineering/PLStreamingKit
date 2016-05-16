@@ -11,6 +11,7 @@
 #import "QNHijackingDetectWrapper.h"
 #import "QNHosts.h"
 #import "QNResolver.h"
+#import "QNTxtResolver.h"
 #import "QNDes.h"
 #import "QNHex.h"
 
