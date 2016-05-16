@@ -69,6 +69,8 @@ pod update
 #import <PLStreamingKit/PLStreamingKit.h>
 ```
 
+`PLStreamingEnv` 是推流的环境初始化类，需要在 `- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;` 方法下调用 `[PLStreamingEnv initEnv];` 以正确初始化使用环境，否则无法正常推流
+
 `PLStreamingSession` 是核心类，你只需要关注并使用这个类就可以完成推流工作。
 
 `StreamingSession` 的创建
@@ -91,7 +93,7 @@ NSDictionary *streamJSON;
 PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
 PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
 PLStream *stream = [PLStream streamWithJSON:streamJSON];
-    
+
 self.session = [[PLStreamingSession alloc] initWithVideoConfiguration:videoConfiguration audioConfiguration:audioConfiguration stream:stream];
 self.session.delegate = self;
 ```
@@ -133,21 +135,21 @@ GPUImage 作为当前 iOS 平台使用率最高的图像渲染引擎，可以轻
 // 使用 GPUImageVideoCamera 获取摄像头数据
 GPUImageVideoCamera *videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
 videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-    
+
 // 创建一个 filter
 GPUImageSketchFilter *filter = [[GPUImageSketchFilter alloc] init];
-    
+
 CGRect bounds = [UIScreen mainScreen].bounds;
 CGFloat width = CGRectGetWidth(bounds);
 CGFloat height = width * 640.0 / 480.0;
 GPUImageView *filteredVideoView = [[GPUImageView alloc] initWithFrame:(CGRect){0, 64, width, height}];
-    
+
 // Add the view somewhere so it's visible
 [self.view addSubview:filteredVideoView];
-    
+
 [videoCamera addTarget:filter];
 [filter addTarget:filteredVideoView];
-    
+
 // 创建一个 GPUImageRawDataOutput 作为 filter 的 Target
 GPUImageRawDataOutput *rawDataOutput = [[GPUImageRawDataOutput alloc] initWithImageSize:CGSizeMake(480, 640) resultsInBGRAFormat:YES];
 [filter addTarget:rawDataOutput];
@@ -157,7 +159,7 @@ __weak typeof(self) wself = self;
     __strong GPUImageRawDataOutput *strongOutput = weakOutput;
     __strong typeof(wself) strongSelf = wself;
     [strongOutput lockFramebufferForReading];
-        
+
     //从 GPUImageRawDataOutput 中获取 CVPixelBufferRef
     GLubyte *outputBytes = [strongOutput rawBytesForImage];
     NSInteger bytesPerRow = [strongOutput bytesPerRowInOutput];
@@ -167,13 +169,13 @@ __weak typeof(self) wself = self;
     if(pixelBuffer == NULL) {
         return ;
     }
-        
+
     // 发送视频数据
     [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
         CVPixelBufferRelease(pixelBuffer);
     }];
 }];
-    
+
 [videoCamera startCameraCapture];
 ```
 
@@ -404,6 +406,11 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.1.6 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.1.6.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.1.6.md))
+		- 拆分 pili-librtmp 为公共依赖，避免模拟器环境下与 PLPlayerKit冲突的问题
+		- 解决网络不可达条件下 `- (void)startWithCompleted:(void (^)(BOOL success))handler;` 方法无回调的问题
+		- 新增质量上报支持
+		- 增加推流中实时变换采集音频参数的接口
 - 1.1.5 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.1.5.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.1.5.md))
     - 修复 `v1.1.1` 版本引入的断网时引起的 UI 卡死问题，强烈建议 >= `v1.1.1` 的均做更新
 - 1.1.4 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.1.4.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.1.4.md))

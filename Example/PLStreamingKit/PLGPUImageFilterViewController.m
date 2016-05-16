@@ -66,7 +66,7 @@ PLStreamingSendingBufferDelegate
             return ;
         }
         
-        [strongSelf.session pushPixelBuffer:pixelBuffer completion:^{
+        [strongSelf.session pushPixelBuffer:pixelBuffer completion:^(BOOL success) {
             CVPixelBufferRelease(pixelBuffer);
         }];
     }];

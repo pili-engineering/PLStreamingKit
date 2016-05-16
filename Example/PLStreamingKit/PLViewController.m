@@ -44,7 +44,8 @@ static OSStatus handleInputBuffer(void *inRefCon,
         
         if(!status) {
             AudioBuffer audioBuffer = buffers.mBuffers[0];
-            [ref.session pushAudioBuffer:&audioBuffer];
+            AudioStreamBasicDescription asbd = ref.asbd;
+            [ref.session pushAudioBuffer:&audioBuffer asbd:&asbd];
         }
         return status;
     }
@@ -62,7 +63,8 @@ static OSStatus handleInputBuffer(void *inRefCon,
     PLVideoStreamingConfiguration *videoConfiguration = self.audioOnly ? nil : [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
     PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
     
-#warning 你需要设定 streamJSON 为自己服务端创建的流
+#warning 如果要运行 demo 这里应该填写服务端返回的某个流的 json 信息
+    
     NSDictionary *streamJSON;
     
     PLStream *stream = [PLStream streamWithJSON:streamJSON];
@@ -141,11 +143,9 @@ static OSStatus handleInputBuffer(void *inRefCon,
 #pragma mark - <PLStreamingSendingBufferDelegate>
 
 - (void)streamingSessionSendingBufferDidEmpty:(id)session {
-    NSLog(@"Sending buffer empty");
 }
 
 - (void)streamingSessionSendingBufferDidFull:(id)session {
-    NSLog(@"Sending buffer full");
 }
 
 #pragma mark - <PLCameraStreamingSessionDelegate>
@@ -344,7 +344,7 @@ static void setSamplerate(){
         desc.mBitsPerChannel = 16;
         desc.mBytesPerFrame = desc.mBitsPerChannel / 8 * desc.mChannelsPerFrame;
         desc.mBytesPerPacket = desc.mBytesPerFrame * desc.mFramesPerPacket;
-        
+        self.asbd = desc;
         AURenderCallbackStruct cb;
         cb.inputProcRefCon = (__bridge void *)(strongSelf);
         cb.inputProc = handleInputBuffer;
