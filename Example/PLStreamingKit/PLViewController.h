@@ -27,7 +27,7 @@ PLStreamingSendingBufferDelegate
 @property (nonatomic, assign) AudioComponent            component;
 
 @property (weak, nonatomic) IBOutlet UIButton *actionButton;
-@property (nonatomic, assign) AudioStreamBasicDescription asbd;
+@property (nonatomic, assign) AudioStreamBasicDescription *asbd;
 
 @property (nonatomic, assign) BOOL audioOnly;
 
