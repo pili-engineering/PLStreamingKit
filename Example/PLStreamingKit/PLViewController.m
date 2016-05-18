@@ -29,7 +29,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
         AudioBuffer buffer;
         buffer.mData = NULL;
         buffer.mDataByteSize = 0;
-        buffer.mNumberChannels = 2;
+        buffer.mNumberChannels = 1;
         
         AudioBufferList buffers;
         buffers.mNumberBuffers = 1;
@@ -44,8 +44,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
         
         if(!status) {
             AudioBuffer audioBuffer = buffers.mBuffers[0];
-            AudioStreamBasicDescription asbd = ref.asbd;
-            [ref.session pushAudioBuffer:&audioBuffer asbd:&asbd];
+            [ref.session pushAudioBuffer:&audioBuffer asbd:ref.asbd];
         }
         return status;
     }
@@ -89,6 +88,7 @@ static OSStatus handleInputBuffer(void *inRefCon,
     [self.cameraCaptureSession stopRunning];
     AudioOutputUnitStop(self.componetInstance);
     [self.session destroy];
+    free(self.asbd);
 }
 
 #pragma mark - Notification
@@ -335,20 +335,20 @@ static void setSamplerate(){
         
         AudioUnitSetProperty(strongSelf.componetInstance, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, 1, &flagOne, sizeof(flagOne));
         
-        AudioStreamBasicDescription desc = {0};
-        desc.mSampleRate = 44100;
-        desc.mFormatID = kAudioFormatLinearPCM;
-        desc.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-        desc.mChannelsPerFrame = 2;
-        desc.mFramesPerPacket = 1;
-        desc.mBitsPerChannel = 16;
-        desc.mBytesPerFrame = desc.mBitsPerChannel / 8 * desc.mChannelsPerFrame;
-        desc.mBytesPerPacket = desc.mBytesPerFrame * desc.mFramesPerPacket;
+        AudioStreamBasicDescription *desc = calloc(1, sizeof(AudioStreamBasicDescription));
+        desc->mSampleRate = 44100;
+        desc->mFormatID = kAudioFormatLinearPCM;
+        desc->mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+        desc->mChannelsPerFrame = 1;
+        desc->mFramesPerPacket = 1;
+        desc->mBitsPerChannel = 16;
+        desc->mBytesPerFrame = desc->mBitsPerChannel / 8 * desc->mChannelsPerFrame;
+        desc->mBytesPerPacket = desc->mBytesPerFrame * desc->mFramesPerPacket;
         self.asbd = desc;
         AURenderCallbackStruct cb;
         cb.inputProcRefCon = (__bridge void *)(strongSelf);
         cb.inputProc = handleInputBuffer;
-        AudioUnitSetProperty(strongSelf.componetInstance, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, &desc, sizeof(desc));
+        AudioUnitSetProperty(strongSelf.componetInstance, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, desc, sizeof(AudioStreamBasicDescription));
         AudioUnitSetProperty(strongSelf.componetInstance, kAudioOutputUnitProperty_SetInputCallback, kAudioUnitScope_Global, 1, &cb, sizeof(cb));
         
         status = AudioUnitInitialize(strongSelf.componetInstance);
