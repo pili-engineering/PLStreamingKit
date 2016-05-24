@@ -63,8 +63,30 @@ static OSStatus handleInputBuffer(void *inRefCon,
     PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
     
 #warning 如果要运行 demo 这里应该填写服务端返回的某个流的 json 信息
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://pili-demo.qiniu.com/api/stream"]];
+    request.HTTPMethod = @"POST";
     
-    NSDictionary *streamJSON;
+    NSHTTPURLResponse *response = nil;
+    NSError* err = nil;
+    NSData* d = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&err];
+    
+    if (err != nil || response == nil || d == nil) {
+        NSLog(@"get play json faild, %@, %@, %@", err, response, d);
+        return;
+    }
+    
+    NSDictionary *streamJSON = [NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingMutableLeaves error:&err];
+    if (err != nil || streamJSON == nil) {
+        NSLog(@"json decode error %@", err);
+        return;
+    }
+    
+    NSLog(@"Stream Json %@", streamJSON);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:[NSString stringWithFormat:@"title: %@", streamJSON[@"title"]] delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
+        [alert show];
+    });
     
     PLStream *stream = [PLStream streamWithJSON:streamJSON];
     
@@ -306,6 +328,12 @@ static void setSamplerate(){
         
         NSError *error = nil;
         
+        [session setPreferredSampleRate:48000 error:&error];
+        
+        if (error) {
+            NSLog(@"failed to set preferred sample rate : %@", error.localizedDescription);
+        }
+
         [session setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker | AVAudioSessionCategoryOptionMixWithOthers error:nil];
         if (![session setActive:YES error:&error]) {
             NSString *log = @"Failed to set audio session active.";
@@ -336,7 +364,7 @@ static void setSamplerate(){
         AudioUnitSetProperty(strongSelf.componetInstance, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, 1, &flagOne, sizeof(flagOne));
         
         AudioStreamBasicDescription *desc = calloc(1, sizeof(AudioStreamBasicDescription));
-        desc->mSampleRate = 44100;
+        desc->mSampleRate = 48000;
         desc->mFormatID = kAudioFormatLinearPCM;
         desc->mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
         desc->mChannelsPerFrame = 1;
