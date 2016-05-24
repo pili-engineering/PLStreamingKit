@@ -59,38 +59,16 @@ static OSStatus handleInputBuffer(void *inRefCon,
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    PLVideoStreamingConfiguration *videoConfiguration = self.audioOnly ? nil : [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
-    PLAudioStreamingConfiguration *audioConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
+    PLVideoStreamingConfiguration *videoStreamingConfiguration = self.audioOnly ? nil : [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
+    PLAudioStreamingConfiguration *audioStreamingConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
     
 #warning 如果要运行 demo 这里应该填写服务端返回的某个流的 json 信息
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://pili-demo.qiniu.com/api/stream"]];
-    request.HTTPMethod = @"POST";
     
-    NSHTTPURLResponse *response = nil;
-    NSError* err = nil;
-    NSData* d = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&err];
-    
-    if (err != nil || response == nil || d == nil) {
-        NSLog(@"get play json faild, %@, %@, %@", err, response, d);
-        return;
-    }
-    
-    NSDictionary *streamJSON = [NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingMutableLeaves error:&err];
-    if (err != nil || streamJSON == nil) {
-        NSLog(@"json decode error %@", err);
-        return;
-    }
-    
-    NSLog(@"Stream Json %@", streamJSON);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:[NSString stringWithFormat:@"title: %@", streamJSON[@"title"]] delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
-        [alert show];
-    });
+    NSDictionary *streamJSON = nil;
     
     PLStream *stream = [PLStream streamWithJSON:streamJSON];
     
-    self.session = [[PLStreamingSession alloc] initWithVideoConfiguration:videoConfiguration audioConfiguration:audioConfiguration stream:stream];
+    self.session = [[PLStreamingSession alloc] initWithVideoStreamingConfiguration:videoStreamingConfiguration audioStreamingConfiguration:audioStreamingConfiguration stream:stream];
     self.session.delegate = self;
     self.session.bufferDelegate = self;
     
