@@ -76,16 +76,15 @@ PLStreamingSendingBufferDelegate
 }
 
 - (void)setupPili {
-    PLVideoStreamingConfiguration *videoConfiguration = [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(480, 640) videoQuality:kPLVideoStreamingQualityMedium1];
+    PLVideoStreamingConfiguration *videoStreamingConfiguration = [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(480, 640) videoQuality:kPLVideoStreamingQualityMedium1];
     
 #warning 你需要设定 streamJSON 为自己服务端创建的流
     NSDictionary *streamJSON;
     
     PLStream *stream = [PLStream streamWithJSON:streamJSON];
     
-    self.session = [[PLStreamingSession alloc] initWithVideoConfiguration:videoConfiguration
-                                                       audioConfiguration:nil
-                                                                   stream:stream];
+    self.session = [[PLStreamingSession alloc] initWithVideoStreamingConfiguration:videoStreamingConfiguration audioStreamingConfiguration:nil stream:stream];
+
     self.session.delegate = self;
 }
 
