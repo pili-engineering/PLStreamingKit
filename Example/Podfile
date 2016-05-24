@@ -1,11 +1,11 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
-target 'PLStreamingKit_Example', :exclusive => true do
+target 'PLStreamingKit_Example' do
   pod "PLStreamingKit", :path => "../"
   pod "GPUImage"
 end
 
-target 'PLStreamingKit_Tests', :exclusive => true do
+target 'PLStreamingKit_Tests' do
   pod "PLStreamingKit", :path => "../"
 end
