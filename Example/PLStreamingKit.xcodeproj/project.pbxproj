@@ -219,6 +219,7 @@
 				6003F588195388D20070C39A /* Resources */,
 				1285415A8FA3D55C7E2874E2 /* 📦 Embed Pods Frameworks */,
 				AF418A3F5D1A3253B7952739 /* 📦 Copy Pods Resources */,
+				1574B78891C9ED1C2B725DDA /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -239,6 +240,7 @@
 				6003F5AC195388D20070C39A /* Resources */,
 				6CEACF5710FE063028920E8F /* 📦 Embed Pods Frameworks */,
 				8DD8F855825F8174B65C16DA /* 📦 Copy Pods Resources */,
+				A8C1084400E74C5DFB81093B /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -329,6 +331,21 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PLStreamingKit_Example/Pods-PLStreamingKit_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		1574B78891C9ED1C2B725DDA /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PLStreamingKit_Example/Pods-PLStreamingKit_Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		421C2A8D9680C2E6A9502EAE /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -387,6 +404,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PLStreamingKit_Tests/Pods-PLStreamingKit_Tests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A8C1084400E74C5DFB81093B /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PLStreamingKit_Tests/Pods-PLStreamingKit_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		AF418A3F5D1A3253B7952739 /* 📦 Copy Pods Resources */ = {

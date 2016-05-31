@@ -1,12 +1,12 @@
 PODS:
   - GPUImage (0.1.7)
-  - HappyDNS (0.2.4)
-  - pili-librtmp (1.0.1)
-  - PLStreamingKit (1.2.0):
+  - HappyDNS (0.3.3.1)
+  - pili-librtmp (1.0.2)
+  - PLStreamingKit (1.2.1):
     - HappyDNS
     - pili-librtmp
-    - PLStreamingKit/precompiled (= 1.2.0)
-  - PLStreamingKit/precompiled (1.2.0):
+    - PLStreamingKit/precompiled (= 1.2.1)
+  - PLStreamingKit/precompiled (1.2.1):
     - HappyDNS
     - pili-librtmp
 
@@ -20,10 +20,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
-  HappyDNS: 86ab4be498cc5cc884002b248979cd130cfbe10e
-  pili-librtmp: 8f2b969a1890e881715a90ab98d4d52baf53c514
-  PLStreamingKit: 10056a9c9bcf79490e82dc01c1ea4ef57668e412
+  HappyDNS: 816fceb07c964675bba4ffe668a7c5fc4ffdfe7e
+  pili-librtmp: 97dc6774ac4ebb9935f04d5f35f3f6d8c4a4f37c
+  PLStreamingKit: 55c671786ebfa541105fa9d8df9e38fd28454210
 
-PODFILE CHECKSUM: 0eb2dff0a3130b242de4385dc644ebde3326f7b0
-
-COCOAPODS: 1.0.0
+COCOAPODS: 0.39.0

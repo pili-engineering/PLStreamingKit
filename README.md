@@ -418,6 +418,12 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.2.1 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.2.1.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.2.1.md))
+  - 功能
+    - 新增 iOS9 下的纯 IPV6 环境支持
+
+  - 缺陷
+    - 修复 dynamic 鉴权方式下重连失效的问题
 - 1.2.0 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.2.0.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.2.0.md))
     - 解决 iPhone 6s 上出现的电流音问题
     - 支持后台推流
