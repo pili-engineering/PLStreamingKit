@@ -12,8 +12,10 @@
 #import "QNHosts.h"
 #import "QNResolver.h"
 #import "QNTxtResolver.h"
+#import "QNResolvUtil.h"
 #import "QNDes.h"
 #import "QNHex.h"
+#import "QNIP.h"
 
 FOUNDATION_EXPORT double HappyDNSVersionNumber;
 FOUNDATION_EXPORT const unsigned char HappyDNSVersionString[];
