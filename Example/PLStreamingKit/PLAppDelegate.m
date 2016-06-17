@@ -15,7 +15,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     KSCrashInstallationStandard* installation = [KSCrashInstallationStandard sharedInstance];
-    installation.url = [NSURL URLWithString:@"https://collector.bughd.com/kscrash?key=a4ae5d97b578c3b2bc7b0e15319cda1e"];
+    installation.url = [NSURL URLWithString:@"https://collector.bughd.com/kscrash?key=0b0e6f4b6469ed22ade07b850e943331"];
     [installation install];
     [installation sendAllReportsWithCompletion:nil];
     [PLStreamingEnv initEnv];
