@@ -1,12 +1,12 @@
 //
 //  PLAppDelegate.h
-//  PLStreamingKit
+//  PLCameraStreamingKit
 //
-//  Created by 0dayZh on 11/04/2015.
-//  Copyright (c) 2015 0dayZh. All rights reserved.
+//  Created on 01/10/2015.
+//  Copyright (c) Pili Engineering, Qiniu Inc. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 @interface PLAppDelegate : UIResponder <UIApplicationDelegate>
 

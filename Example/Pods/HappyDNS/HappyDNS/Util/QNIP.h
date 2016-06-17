@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 extern int qn_localIp(char *buf, int buf_size);
-extern void qn_nat64(char *buf, int buf_size, uint32_t ipv4addr);
+extern void qn_nat64(char *buf, int buf_size, uint32_t ipv4_addr);
 
 @interface QNIP : NSObject
 
@@ -23,4 +23,6 @@ extern void qn_nat64(char *buf, int buf_size, uint32_t ipv4addr);
 + (NSString *)ipHost:(NSString *)ip;
 
 + (NSString *)nat64:(NSString *)ip;
+
++ (BOOL)isIpV6FullySupported;
 @end

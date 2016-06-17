@@ -4,6 +4,7 @@ use_frameworks!
 target 'PLStreamingKit_Example' do
   pod "PLStreamingKit", :path => "../"
   pod "GPUImage"
+  pod "KSCrash"
 end
 
 target 'PLStreamingKit_Tests' do

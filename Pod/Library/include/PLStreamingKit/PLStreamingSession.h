@@ -405,6 +405,7 @@
 
     @warning    当前版本中，当 App 进入后台，Streaming Session 内部会主动调用 -stop 停止推流，回到前台后并不会重新调用该方法，回到前台后可以根据业务需求不同重新推流或者销毁
                 Streaming Session。
+                当采用 dynamic 认证且过期时，需要更新 Stream 对象，否则推流将失败。
 
     @see        stop
     @see        destroy
@@ -412,6 +413,28 @@
     @since      @v1.0.0
  */
 - (void)startWithCompleted:(void (^)(BOOL success))handler;
+
+/*!
+    @method     restartWithCompleted:
+    @abstract   重新开始推流
+ 
+    @param      handler 流连接的结果会通过该回调方法返回，携带是否已连接成功的布尔值
+ 
+    @discussion 当 Streaming Session 处于正在推流过程中，由于业务原因（如用户网络从 4G 切到 WIFI）需要快速重新推流时，可以调用此方法重新推流。当要停止一次推流但是并不销毁 Streaming Session
+                对象时，调用 -stop 方法即可，便于在需要重新推流时再重新调用该方法进行推流。如果确认不再使用对应 stream 进行推流，可以调用 -destroy 销毁
+                Streaming Session 对象，销毁后的对象不可再用于推流或做其他操作，如有需求，需要创建一个新的 Streaming Session 对象。<br>
+                handler 回调的线程会优先使用 delegateQueue, 如果 delegateQueue 未设置，会在主线程异步调用。
+ 
+    @warning    当前 Streaming Session 处于正在推流状态时调用此方法时才会重新推流，其它状态时调用无效
+                Streaming Session。
+                当采用 dynamic 认证且过期时，需要更新 Stream 对象，否则推流将失败。
+ 
+ @see        stop
+ @see        destroy
+ 
+ @since      @v1.2.2
+ */
+- (void)restartWithCompleted:(void (^)(BOOL success))handler;
 
 /*!
     @method     stop

@@ -20,6 +20,5 @@ PLStreamingKit 为 iOS 开发者提供直播推流 SDK。
 
 - 功能
   - 新增 iOS9 下的纯 IPV6 环境支持
-
 - 缺陷
   - 修复 dynamic 鉴权方式下重连失效的问题
