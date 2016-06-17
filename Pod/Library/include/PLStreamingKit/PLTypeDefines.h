@@ -87,6 +87,9 @@ typedef enum {
     
     // DNS error
     PLStreamErrorDNSResolveFailed = -1300,
+    
+    // reconnect error
+    PLStreamErrorReconnectFailed = -1400,
 } PLStreamError;
 
 #pragma mark - Video Streaming Quality

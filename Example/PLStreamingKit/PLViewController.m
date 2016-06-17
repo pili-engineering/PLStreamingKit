@@ -1,12 +1,15 @@
 //
-//  PLViewController.m
-//  PLStreamingKit
+//  PLCameraStreamingViewController.m
+//  PLCameraStreamingKit
 //
-//  Created by 0dayZh on 11/04/2015.
-//  Copyright (c) 2015 0dayZh. All rights reserved.
+//  Created on 01/10/2015.
+//  Copyright (c) Pili Engineering, Qiniu Inc. All rights reserved.
 //
 
 #import "PLViewController.h"
+#import "Reachability.h"
+#import <asl.h>
+#import "PLCameraStreamingKit/PLCameraStreamingKit.h"
 
 const char *stateNames[] = {
     "Unknow",
@@ -17,40 +20,38 @@ const char *stateNames[] = {
     "Error"
 };
 
-static OSStatus handleInputBuffer(void *inRefCon,
-                                  AudioUnitRenderActionFlags *ioActionFlags,
-                                  const AudioTimeStamp *inTimeStamp,
-                                  UInt32 inBusNumber,
-                                  UInt32 inNumberFrames,
-                                  AudioBufferList *ioData) {
-    @autoreleasepool {
-        PLViewController *ref = (__bridge PLViewController *)inRefCon;
-        
-        AudioBuffer buffer;
-        buffer.mData = NULL;
-        buffer.mDataByteSize = 0;
-        buffer.mNumberChannels = 1;
-        
-        AudioBufferList buffers;
-        buffers.mNumberBuffers = 1;
-        buffers.mBuffers[0] = buffer;
-        
-        OSStatus status = AudioUnitRender(ref.componetInstance,
-                                          ioActionFlags,
-                                          inTimeStamp,
-                                          inBusNumber,
-                                          inNumberFrames,
-                                          &buffers);
-        
-        if(!status) {
-            AudioBuffer audioBuffer = buffers.mBuffers[0];
-            [ref.session pushAudioBuffer:&audioBuffer asbd:ref.asbd];
-        }
-        return status;
-    }
-}
+const char *networkStatus[] = {
+    "Not Reachable",
+    "Reachable via WiFi",
+    "Reachable via CELL"
+};
+
+#define kReloadConfigurationEnable  0
+
+// 假设在 videoFPS 低于预期 50% 的情况下就触发降低推流质量的操作，这里的 40% 是一个假定数值，你可以更改数值来尝试不同的策略
+#define kMaxVideoFPSPercent 0.5
+
+// 假设当 videoFPS 在 10s 内与设定的 fps 相差都小于 5% 时，就尝试调高编码质量
+#define kMinVideoFPSPercent 0.05
+#define kHigherQualityTimeInterval  10
+
+#define kBrightnessAdjustRatio  1.03
+#define kSaturationAdjustRatio  1.03
 
 @interface PLViewController ()
+<
+PLCameraStreamingSessionDelegate,
+PLStreamingSendingBufferDelegate
+>
+
+@property (nonatomic, strong) PLCameraStreamingSession  *session;
+@property (nonatomic, strong) Reachability *internetReachability;
+@property (nonatomic, strong) dispatch_queue_t sessionQueue;
+@property (nonatomic, strong) NSArray<PLVideoCaptureConfiguration *>   *videoCaptureConfigurations;
+@property (nonatomic, strong) NSArray<PLVideoStreamingConfiguration *>   *videoStreamingConfigurations;
+@property (nonatomic, strong) NSDate    *keyTime;
+@property (nonatomic, strong) NSMutableArray *filterHandlers;
+@property (nonatomic, assign) NetworkStatus currentNetworkStatus;
 
 @end
 
@@ -58,40 +59,142 @@ static OSStatus handleInputBuffer(void *inRefCon,
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    // 预先设定几组编码质量，之后可以切换
+    CGSize videoSize = CGSizeMake(480 , 640);
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if (orientation <= AVCaptureVideoOrientationLandscapeLeft) {
+        if (orientation > AVCaptureVideoOrientationPortraitUpsideDown) {
+            videoSize = CGSizeMake(640 , 480);
+        }
+    }
+    self.videoStreamingConfigurations = @[
+                                 [[PLVideoStreamingConfiguration alloc] initWithVideoSize:videoSize expectedSourceVideoFrameRate:15 videoMaxKeyframeInterval:45 averageVideoBitRate:800 * 1000 videoProfileLevel:AVVideoProfileLevelH264Baseline31],
+                                 [[PLVideoStreamingConfiguration alloc] initWithVideoSize:CGSizeMake(800 , 480) expectedSourceVideoFrameRate:24 videoMaxKeyframeInterval:72 averageVideoBitRate:800 * 1000 videoProfileLevel:AVVideoProfileLevelH264Baseline31],
+                                 [[PLVideoStreamingConfiguration alloc] initWithVideoSize:videoSize expectedSourceVideoFrameRate:30 videoMaxKeyframeInterval:90 averageVideoBitRate:800 * 1000 videoProfileLevel:AVVideoProfileLevelH264Baseline31],
+                                 ];
+    self.videoCaptureConfigurations = @[
+                                        [[PLVideoCaptureConfiguration alloc] initWithVideoFrameRate:15 sessionPreset:AVCaptureSessionPresetiFrame960x540 horizontallyMirrorFrontFacingCamera:YES horizontallyMirrorRearFacingCamera:NO
+                                         cameraPosition:AVCaptureDevicePositionFront],
+                                        [[PLVideoCaptureConfiguration alloc] initWithVideoFrameRate:24 sessionPreset:AVCaptureSessionPresetiFrame960x540 horizontallyMirrorFrontFacingCamera:YES horizontallyMirrorRearFacingCamera:NO cameraPosition:AVCaptureDevicePositionFront],
+                                        [[PLVideoCaptureConfiguration alloc] initWithVideoFrameRate:30 sessionPreset:AVCaptureSessionPresetiFrame960x540 horizontallyMirrorFrontFacingCamera:YES horizontallyMirrorRearFacingCamera:NO cameraPosition:AVCaptureDevicePositionFront]
+                                        ];
+    self.sessionQueue = dispatch_queue_create("pili.queue.streaming", DISPATCH_QUEUE_SERIAL);
     
-    PLVideoStreamingConfiguration *videoStreamingConfiguration = self.audioOnly ? nil : [PLVideoStreamingConfiguration configurationWithVideoSize:CGSizeMake(320, 576) videoQuality:kPLVideoStreamingQualityLow2];
-    PLAudioStreamingConfiguration *audioStreamingConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
-    
-#warning 如果要运行 demo 这里应该填写服务端返回的某个流的 json 信息
-    
-    NSDictionary *streamJSON = nil;
-    
-    PLStream *stream = [PLStream streamWithJSON:streamJSON];
-    
-    self.session = [[PLStreamingSession alloc] initWithVideoStreamingConfiguration:videoStreamingConfiguration audioStreamingConfiguration:audioStreamingConfiguration stream:stream];
-    self.session.delegate = self;
-    self.session.bufferDelegate = self;
-    
+    // 网络状态监控
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+    self.internetReachability = [Reachability reachabilityForInternetConnection];
+    [self.internetReachability startNotifier];
+    self.currentNetworkStatus = [self.internetReachability currentReachabilityStatus];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleInterruption:)
                                                  name:AVAudioSessionInterruptionNotification
                                                object:[AVAudioSession sharedInstance]];
     
-    if (!self.audioOnly) {
-        [self initCameraSource];
+    // PLCameraStreamingKit 使用开始
+    //
+    // streamJSON 是从服务端拿回的
+    //
+    // 从服务端拿回的 streamJSON 结构如下：
+    //    @{@"id": @"stream_id",
+    //      @"title": @"stream_title",
+    //      @"hub": @"hub_name",
+    //      @"publishKey": @"publish_key",
+    //      @"publishSecurity": @"dynamic", // or static
+    //      @"disabled": @(NO),
+    //      @"profiles": @[@"480p", @"720p"],    // or empty Array []
+    //      @"hosts": @{
+    //              ...
+    //      }
+#warning 如果要运行 demo 这里应该填写服务端返回的某个流的 json 信息
+
+    NSDictionary *streamJSON = nil;
+    
+    NSURL *streamCloudURL = [NSURL URLWithString:@"http://pili-demo.qiniu.com/api/stream"];
+    
+    PLStream *stream = [PLStream streamWithJSON:[self _createStreamObjectFromServerWithURL:streamCloudURL]];
+    
+    void (^permissionBlock)(void) = ^{
+        dispatch_async(self.sessionQueue, ^{
+            PLVideoCaptureConfiguration *videoCaptureConfiguration = [self.videoCaptureConfigurations lastObject];
+            PLAudioCaptureConfiguration *audioCaptureConfiguration = [PLAudioCaptureConfiguration defaultConfiguration];
+            // 视频编码配置
+            PLVideoStreamingConfiguration *videoStreamingConfiguration = [self.videoStreamingConfigurations lastObject];
+            // 音频编码配置
+            PLAudioStreamingConfiguration *audioStreamingConfiguration = [PLAudioStreamingConfiguration defaultConfiguration];
+            AVCaptureVideoOrientation orientation = (AVCaptureVideoOrientation)(([[UIDevice currentDevice] orientation] <= UIDeviceOrientationLandscapeRight && [[UIDevice currentDevice] orientation] != UIDeviceOrientationUnknown) ? [[UIDevice currentDevice] orientation]: UIDeviceOrientationPortrait);
+            // 推流 session
+            self.session = [[PLCameraStreamingSession alloc] initWithVideoCaptureConfiguration:videoCaptureConfiguration audioCaptureConfiguration:audioCaptureConfiguration videoStreamingConfiguration:videoStreamingConfiguration audioStreamingConfiguration:audioStreamingConfiguration stream:stream videoOrientation:orientation];
+            self.session.delegate = self;
+            self.session.bufferDelegate = self;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIView *previewView = self.session.previewView;
+                previewView.autoresizingMask = UIViewAutoresizingFlexibleHeight| UIViewAutoresizingFlexibleWidth;
+                [self.view insertSubview:previewView atIndex:0];
+                self.zoomSlider.minimumValue = 1;
+                self.zoomSlider.maximumValue = MIN(5, self.session.videoActiveFormat.videoMaxZoomFactor);
+                
+                NSString *log = [NSString stringWithFormat:@"Zoom Range: [1..%.0f]", self.session.videoActiveFormat.videoMaxZoomFactor];
+                NSLog(@"%@", log);
+                self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
+            });
+        });
+    };
+    
+    void (^noAccessBlock)(void) = ^{
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"No Access", nil)
+                                                            message:NSLocalizedString(@"!", nil)
+                                                           delegate:nil
+                                                  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                                                  otherButtonTitles:nil];
+        [alertView show];
+    };
+    
+    switch ([PLCameraStreamingSession cameraAuthorizationStatus]) {
+        case PLAuthorizationStatusAuthorized:
+            permissionBlock();
+            break;
+        case PLAuthorizationStatusNotDetermined: {
+            [PLCameraStreamingSession requestCameraAccessWithCompletionHandler:^(BOOL granted) {
+                granted ? permissionBlock() : noAccessBlock();
+            }];
+        }
+            break;
+        default:
+            noAccessBlock();
+            break;
     }
-    [self initMicrophoneSource];
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self.cameraCaptureSession stopRunning];
-    AudioOutputUnitStop(self.componetInstance);
-    [self.session destroy];
-    free(self.asbd);
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
+    
+    dispatch_sync(self.sessionQueue, ^{
+        [self.session destroy];
+    });
+    self.session = nil;
+    self.sessionQueue = nil;
 }
 
-#pragma mark - Notification
+#pragma mark - Notification Handler
+
+- (void)reachabilityChanged:(NSNotification *)notif{
+    Reachability *curReach = [notif object];
+    NSParameterAssert([curReach isKindOfClass:[Reachability class]]);
+    NetworkStatus status = [curReach currentReachabilityStatus];
+    
+    if (NotReachable == status) {
+        // 对断网情况做处理
+        [self stopSession];
+    }
+    
+    if (ReachableViaWWAN == self.currentNetworkStatus && ReachableViaWiFi == status) {
+        [self.session restartWithCompleted:nil];
+    }
+    
+    NSString *log = [NSString stringWithFormat:@"Networkt Status: %s", networkStatus[status]];
+    NSLog(@"%@", log);
+    self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
+}
 
 - (void)handleInterruption:(NSNotification *)notification {
     if ([notification.name isEqualToString:AVAudioSessionInterruptionNotification]) {
@@ -102,301 +205,190 @@ static OSStatus handleInputBuffer(void *inRefCon,
         } else {
             // the facetime iOS 9 has a bug: 1 does not send interrupt end 2 you can use application become active, and repeat set audio session acitve until success.  ref http://blog.corywiles.com/broken-facetime-audio-interruptions-in-ios-9
             NSLog(@"InterruptionTypeEnded");
-            setSamplerate();
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+            [session setActive:YES error:nil];
         }
-    }
-}
-
-#pragma mark - Action
-
-- (IBAction)actionButtonPressed:(id)sender {
-    self.actionButton.enabled = NO;
-    
-    switch (self.session.streamState) {
-        case PLStreamStateConnected:
-            [self.session stop];
-            [self.actionButton setTitle:@"Start" forState:UIControlStateNormal];
-            self.actionButton.enabled = YES;
-            break;
-        case PLStreamStateUnknow:
-        case PLStreamStateDisconnected:
-        case PLStreamStateError: {
-            [self.session startWithCompleted:^(BOOL success) {
-                if (success) {
-                    NSString *log = @"success to start streaming";
-                    NSLog(@"%@", log);
-                    [self.actionButton setTitle:@"Stop" forState:UIControlStateNormal];
-                } else {
-                    NSString *log = @"fail to start streaming.";
-                    NSLog(@"%@", log);
-                    [self.actionButton setTitle:@"Start" forState:UIControlStateNormal];
-                }
-                self.actionButton.enabled = YES;
-            }];
-        }
-            break;
-        default:
-            break;
     }
 }
 
 #pragma mark - <PLStreamingSendingBufferDelegate>
 
-- (void)streamingSessionSendingBufferDidEmpty:(id)session {
+- (void)streamingSessionSendingBufferDidFull:(id)session {
+    NSString *log = @"Buffer is full";
+    NSLog(@"%@", log);
+    self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
 }
 
-- (void)streamingSessionSendingBufferDidFull:(id)session {
+- (void)streamingSession:(id)session sendingBufferDidDropItems:(NSArray *)items {
+    NSString *log = @"Frame dropped";
+    NSLog(@"%@", log);
+    self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
 }
 
 #pragma mark - <PLCameraStreamingSessionDelegate>
 
-- (void)streamingSession:(PLStreamingSession *)session streamStateDidChange:(PLStreamState)state {
-    // 除 PLStreamStateError 外的所有状态都会回调在这里
+- (void)cameraStreamingSession:(PLCameraStreamingSession *)session streamStateDidChange:(PLStreamState)state {
     NSString *log = [NSString stringWithFormat:@"Stream State: %s", stateNames[state]];
     NSLog(@"%@", log);
-    if (PLStreamStateDisconnected == state) {
-        [self.actionButton setTitle:@"Start" forState:UIControlStateNormal];
+    self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
+    
+    // 除 PLStreamStateError 外的其余状态会回调在这个方法
+    // 这个回调会确保在主线程，所以可以直接对 UI 做操作
+    if (PLStreamStateConnected == state) {
+        [self.actionButton setTitle:NSLocalizedString(@"Stop", nil) forState:UIControlStateNormal];
+    } else if (PLStreamStateDisconnected == state) {
+        [self.actionButton setTitle:NSLocalizedString(@"Start", nil) forState:UIControlStateNormal];
     }
 }
 
-- (void)streamingSession:(PLStreamingSession *)session didDisconnectWithError:(NSError *)error {
-    // PLStreamStateError 状态会回调在这里
+- (void)cameraStreamingSession:(PLCameraStreamingSession *)session didDisconnectWithError:(NSError *)error {
     NSString *log = [NSString stringWithFormat:@"Stream State: Error. %@", error];
     NSLog(@"%@", log);
-    [self.actionButton setTitle:@"Start" forState:UIControlStateNormal];
+    self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
+    // PLStreamStateError 都会回调在这个方法
+    // 尝试重连，注意这里需要你自己来处理重连尝试的次数以及重连的时间间隔
+    [self.actionButton setTitle:NSLocalizedString(@"Reconnecting", nil) forState:UIControlStateNormal];
+    [self startSession];
 }
 
-- (void)streamingSession:(PLStreamingSession *)session streamStatusDidUpdate:(PLStreamStatus *)status {
-    NSLog(@"%@", status);
+- (void)cameraStreamingSession:(PLCameraStreamingSession *)session streamStatusDidUpdate:(PLStreamStatus *)status {
+    NSString *log = [NSString stringWithFormat:@"%@", status];
+    NSLog(@"%@", log);
+    self.textView.text = [NSString stringWithFormat:@"%@\%@", self.textView.text, log];
+    
+#if kReloadConfigurationEnable
+    NSDate *now = [NSDate date];
+    if (!self.keyTime) {
+        self.keyTime = now;
+    }
+    
+    double expectedVideoFPS = (double)self.session.videoConfiguration.videoFrameRate;
+    double realtimeVideoFPS = status.videoFPS;
+    if (realtimeVideoFPS < expectedVideoFPS * (1 - kMaxVideoFPSPercent)) {
+        // 当得到的 status 中 video fps 比设定的 fps 的 50% 还小时，触发降低推流质量的操作
+        self.keyTime = now;
+        
+        [self lowerQuality];
+    } else if (realtimeVideoFPS >= expectedVideoFPS * (1 - kMinVideoFPSPercent)) {
+        if (-[self.keyTime timeIntervalSinceNow] > kHigherQualityTimeInterval) {
+            self.keyTime = now;
+            
+            [self higherQuality];
+        }
+    }
+#endif  // #if kReloadConfigurationEnable
 }
 
-#pragma mark - <AVCaptureVideoDataOutputSampleBufferDelegate>
+#pragma mark -
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-    [self.session pushVideoSampleBuffer:sampleBuffer];
-}
-
-#pragma mark - source
-
-static void setSamplerate(){
-    NSError *err;
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setPreferredSampleRate:session.sampleRate error:&err];
-    if (err != nil) {
-        NSString *log = [NSString stringWithFormat:@"set samplerate failed, %@", err];
-        NSLog(@"%@", log);
+- (void)higherQuality {
+    NSUInteger idx = [self.videoStreamingConfigurations indexOfObject:self.session.videoStreamingConfiguration];
+    NSAssert(idx != NSNotFound, @"Oops");
+    
+    if (idx >= self.videoStreamingConfigurations.count - 1) {
         return;
     }
-    if (![session setActive:YES error:&err]) {
-        NSString *log = @"Failed to set audio session active.";
-        NSLog(@"%@ %@", log, err);
-    }
+    PLVideoStreamingConfiguration *newStreamingConfiguration = self.videoStreamingConfigurations[idx + 1];
+    PLVideoCaptureConfiguration *newCaptureConfiguration = self.videoCaptureConfigurations[idx + 1];
+    [self.session reloadVideoStreamingConfiguration:newStreamingConfiguration videoCaptureConfiguration:newCaptureConfiguration];
 }
 
-- (void)initCameraSource {
-    __weak typeof(self) wself = self;
-    void (^permissionGranted)(void) = ^{
-        __strong typeof(wself) strongSelf = wself;
-        
-        NSArray *devices = [AVCaptureDevice devices];
-        for (AVCaptureDevice *device in devices) {
-            if ([device hasMediaType:AVMediaTypeVideo] && AVCaptureDevicePositionBack == device.position) {
-                strongSelf.cameraCaptureDevice = device;
-                
-                NSError *error;
-                [device lockForConfiguration:&error];
-                device.activeVideoMinFrameDuration = CMTimeMake(1, 30);
-                device.activeVideoMaxFrameDuration = CMTimeMake(1, 30);
-                [device unlockForConfiguration];
-                break;
-            }
-        }
-        
-        if (!strongSelf.cameraCaptureDevice) {
-            NSString *log = @"No back camera found.";
-            NSLog(@"%@", log);
-            return ;
-        }
-        
-        AVCaptureSession *captureSession = [[AVCaptureSession alloc] init];
-        AVCaptureDeviceInput *input = nil;
-        AVCaptureVideoDataOutput *output = nil;
-        
-        input = [[AVCaptureDeviceInput alloc] initWithDevice:strongSelf.cameraCaptureDevice error:nil];
-        output = [[AVCaptureVideoDataOutput alloc] init];
-        
-        dispatch_queue_t cameraQueue = dispatch_queue_create("com.pili.camera", 0);
-        [output setSampleBufferDelegate:strongSelf queue:cameraQueue];
-        
-        // add input && output
-        if ([captureSession canAddInput:input]) {
-            [captureSession addInput:input];
-        }
-        
-        if ([captureSession canAddOutput:output]) {
-            [captureSession addOutput:output];
-        }
-        
-        strongSelf.cameraCaptureSession = captureSession;
-        
-        [strongSelf reorientCamera:AVCaptureVideoOrientationPortrait];
-        
-        AVCaptureVideoPreviewLayer* previewLayer;
-        previewLayer =  [AVCaptureVideoPreviewLayer layerWithSession:captureSession];
-        previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            previewLayer.frame = self.view.layer.bounds;
-            [self.view.layer insertSublayer:previewLayer atIndex:0];
-        });
-        
-        [strongSelf.cameraCaptureSession startRunning];
-    };
+- (void)lowerQuality {
+    NSUInteger idx = [self.videoStreamingConfigurations indexOfObject:self.session.videoStreamingConfiguration];
+    NSAssert(idx != NSNotFound, @"Oops");
     
-    void (^noPermission)(void) = ^{
-        NSString *log = @"No camera permission.";
-        NSLog(@"%@", log);
-    };
-    
-    void (^requestPermission)(void) = ^{
-        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-            if (granted) {
-                permissionGranted();
-            } else {
-                noPermission();
-            }
-        }];
-    };
-    
-    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    switch (status) {
-        case AVAuthorizationStatusAuthorized:
-            permissionGranted();
-            break;
-        case AVAuthorizationStatusNotDetermined:
-            requestPermission();
-            break;
-        case AVAuthorizationStatusDenied:
-        case AVAuthorizationStatusRestricted:
-        default:
-            noPermission();
-            break;
-    }
-}
-
-- (void)reorientCamera:(AVCaptureVideoOrientation)orientation {
-    if (!self.cameraCaptureSession) {
+    if (0 == idx) {
         return;
     }
-    
-    AVCaptureSession* session = (AVCaptureSession *)self.cameraCaptureSession;
-    
-    for (AVCaptureVideoDataOutput* output in session.outputs) {
-        for (AVCaptureConnection * av in output.connections) {
-            av.videoOrientation = orientation;
-        }
+    PLVideoStreamingConfiguration *newStreamingConfiguration = self.videoStreamingConfigurations[idx - 1];
+    PLVideoCaptureConfiguration *newCaptureConfiguration = self.videoCaptureConfigurations[idx - 1];
+    [self.session reloadVideoStreamingConfiguration:newStreamingConfiguration videoCaptureConfiguration:newCaptureConfiguration];
+}
+
+#pragma mark - Operation
+
+- (void)stopSession {
+    dispatch_async(self.sessionQueue, ^{
+        self.keyTime = nil;
+        [self.session stop];
+    });
+}
+
+- (void)startSession {
+    self.keyTime = nil;
+    self.actionButton.enabled = NO;
+    dispatch_async(self.sessionQueue, ^{
+        [self.session startWithCompleted:^(BOOL success) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.actionButton.enabled = YES;
+            });
+        }];
+    });
+}
+
+#pragma mark - Action
+
+- (IBAction)segmentedControlValueDidChange:(id)sender {
+    PLVideoCaptureConfiguration *videoCaptureConfiguration = self.videoCaptureConfigurations[self.segementedControl.selectedSegmentIndex];
+
+    [self.session reloadVideoStreamingConfiguration:self.session.videoStreamingConfiguration videoCaptureConfiguration:videoCaptureConfiguration];
+}
+
+- (IBAction)zoomSliderValueDidChange:(id)sender {
+    self.session.videoZoomFactor = self.zoomSlider.value;
+}
+
+- (IBAction)actionButtonPressed:(id)sender {
+    if (PLStreamStateConnected == self.session.streamState) {
+        [self stopSession];
+    } else {
+        [self startSession];
     }
 }
 
-- (void)initMicrophoneSource {
-    __weak typeof(self) wself = self;
-    void (^permissionGranted)(void) = ^{
-        __strong typeof(wself) strongSelf = wself;
-        
-        AVAudioSession *session = [AVAudioSession sharedInstance];
-        
-        NSError *error = nil;
-        
-        [session setPreferredSampleRate:48000 error:&error];
-        
-        if (error) {
-            NSLog(@"failed to set preferred sample rate : %@", error.localizedDescription);
-        }
+- (IBAction)toggleCameraButtonPressed:(id)sender {
+    dispatch_async(self.sessionQueue, ^{
+        [self.session toggleCamera];
+    });
+}
 
-        [session setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker | AVAudioSessionCategoryOptionMixWithOthers error:nil];
-        if (![session setActive:YES error:&error]) {
-            NSString *log = @"Failed to set audio session active.";
-            NSLog(@"%@", log);
-            return ;
-        }
-        
-        AudioComponentDescription acd;
-        acd.componentType = kAudioUnitType_Output;
-        acd.componentSubType = kAudioUnitSubType_RemoteIO;
-        acd.componentManufacturer = kAudioUnitManufacturer_Apple;
-        acd.componentFlags = 0;
-        acd.componentFlagsMask = 0;
-        
-        self.component = AudioComponentFindNext(NULL, &acd);
-        
-        OSStatus status = noErr;
-        status = AudioComponentInstanceNew(strongSelf.component, &_componetInstance);
-        
-        if (noErr != status) {
-            NSString *log = @"Failed to new a audio component instance.";
-            NSLog(@"%@", log);
-            return ;
-        }
-        
-        UInt32 flagOne = 1;
-        
-        AudioUnitSetProperty(strongSelf.componetInstance, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, 1, &flagOne, sizeof(flagOne));
-        
-        AudioStreamBasicDescription *desc = calloc(1, sizeof(AudioStreamBasicDescription));
-        desc->mSampleRate = 48000;
-        desc->mFormatID = kAudioFormatLinearPCM;
-        desc->mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-        desc->mChannelsPerFrame = 1;
-        desc->mFramesPerPacket = 1;
-        desc->mBitsPerChannel = 16;
-        desc->mBytesPerFrame = desc->mBitsPerChannel / 8 * desc->mChannelsPerFrame;
-        desc->mBytesPerPacket = desc->mBytesPerFrame * desc->mFramesPerPacket;
-        self.asbd = desc;
-        AURenderCallbackStruct cb;
-        cb.inputProcRefCon = (__bridge void *)(strongSelf);
-        cb.inputProc = handleInputBuffer;
-        AudioUnitSetProperty(strongSelf.componetInstance, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, desc, sizeof(AudioStreamBasicDescription));
-        AudioUnitSetProperty(strongSelf.componetInstance, kAudioOutputUnitProperty_SetInputCallback, kAudioUnitScope_Global, 1, &cb, sizeof(cb));
-        
-        status = AudioUnitInitialize(strongSelf.componetInstance);
-        
-        if (noErr != status) {
-            NSString *log = @"Failed to init audio unit.";
-            NSLog(@"%@", log);
-        }
-        
-        AudioOutputUnitStart(strongSelf.componetInstance);
-        
-        setSamplerate();
-    };
+- (IBAction)torchButtonPressed:(id)sender {
+    dispatch_async(self.sessionQueue, ^{
+        self.session.torchOn = !self.session.isTorchOn;
+    });
+}
+
+- (IBAction)muteButtonPressed:(id)sender {
+    dispatch_async(self.sessionQueue, ^{
+        self.session.muted = !self.session.isMuted;
+    });
+}
+
+- (IBAction)cancelButtonPressed:(id)sender {
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (NSDictionary *)_createStreamObjectFromServerWithURL:(NSURL *)url
+{
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+    request.HTTPMethod = @"POST";
     
-    void (^noPermission)(void) = ^{
-        NSString *log = @"No microphone permission.";
-        NSLog(@"%@", log);
-    };
-    void (^requestPermission)(void) = ^{
-        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
-            if (granted) {
-                permissionGranted();
-            } else {
-                noPermission();
-            }
-        }];
-    };
+    NSHTTPURLResponse *response = nil;
+    NSError* err = nil;
+    NSData* data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&err];
     
-    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-    switch (status) {
-        case AVAuthorizationStatusAuthorized:
-            permissionGranted();
-            break;
-        case AVAuthorizationStatusNotDetermined:
-            requestPermission();
-            break;
-        case AVAuthorizationStatusDenied:
-        case AVAuthorizationStatusRestricted:
-        default:
-            noPermission();
-            break;
+    if (err != nil || response == nil || data == nil) {
+        NSLog(@"get play json faild, %@, %@, %@", err, response, data);
+        return nil;
     }
+    
+    NSDictionary *streamJSON = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
+    if (err != nil || streamJSON == nil) {
+        NSLog(@"json decode error %@", err);
+        return nil;
+    }
+    
+    return streamJSON;
 }
 
 @end

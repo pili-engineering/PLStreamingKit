@@ -1,1 +1,1 @@
-../../../HappyDNS/HappyDNS/QNResolvUtil.h
+../../../HappyDNS/HappyDNS/Local/QNResolvUtil.h

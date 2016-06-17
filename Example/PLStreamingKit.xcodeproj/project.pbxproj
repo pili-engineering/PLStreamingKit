@@ -12,8 +12,6 @@
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F598195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F596195388D20070C39A /* InfoPlist.strings */; };
 		6003F59A195388D20070C39A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F599195388D20070C39A /* main.m */; };
-		6003F59E195388D20070C39A /* PLAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F59D195388D20070C39A /* PLAppDelegate.m */; };
-		6003F5A7195388D20070C39A /* PLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5A6195388D20070C39A /* PLViewController.m */; };
 		6003F5A9195388D20070C39A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5A8195388D20070C39A /* Images.xcassets */; };
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
@@ -21,11 +19,19 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		71ED8F57CBADD5E3A5F482DE /* Pods_PLStreamingKit_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C261999133CAF8EA618E683B /* Pods_PLStreamingKit_Example.framework */; };
-		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		A354D546753813E77B54F69D /* Pods_PLStreamingKit_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3D18A28DBDD5503F394F2A6 /* Pods_PLStreamingKit_Tests.framework */; };
-		E91AE0111BEA1A3100F9975B /* PLMasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E91AE0101BEA1A3100F9975B /* PLMasterViewController.m */; };
-		E91AE0131BEA1C8800F9975B /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E91AE0121BEA1C8800F9975B /* Launch Screen.storyboard */; };
-		E9F4CB9F1C8E855400E0ED62 /* PLGPUImageFilterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9F4CB9E1C8E855400E0ED62 /* PLGPUImageFilterViewController.m */; };
+		B6E5A71D1D1246AD00F6AEC1 /* PLCameraFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A70F1D1246AD00F6AEC1 /* PLCameraFilter.m */; };
+		B6E5A71E1D1246AD00F6AEC1 /* PLCameraSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7111D1246AD00F6AEC1 /* PLCameraSource.m */; };
+		B6E5A71F1D1246AD00F6AEC1 /* PLCameraStreamingSession.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7141D1246AD00F6AEC1 /* PLCameraStreamingSession.m */; };
+		B6E5A7201D1246AD00F6AEC1 /* PLGPUImageCameraFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7161D1246AD00F6AEC1 /* PLGPUImageCameraFilter.m */; };
+		B6E5A7221D1246AD00F6AEC1 /* PLMicrophoneSource.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A71A1D1246AD00F6AEC1 /* PLMicrophoneSource.m */; };
+		B6E5A7361D1251C300F6AEC1 /* PLAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7311D1251C300F6AEC1 /* PLAppDelegate.m */; };
+		B6E5A7371D1251C300F6AEC1 /* PLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7331D1251C300F6AEC1 /* PLViewController.m */; };
+		B6E5A7381D1251C300F6AEC1 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7351D1251C300F6AEC1 /* Reachability.m */; };
+		B6E5A73D1D1251F400F6AEC1 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6E5A7391D1251F400F6AEC1 /* Launch Screen.storyboard */; };
+		B6E5A73E1D1251F400F6AEC1 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6E5A73B1D1251F400F6AEC1 /* Main_iPhone.storyboard */; };
+		B6E5A7441D1252D700F6AEC1 /* PLAudioCaptureConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7421D1252D700F6AEC1 /* PLAudioCaptureConfiguration.m */; };
+		B6E5A7451D1252D700F6AEC1 /* PLVideoCaptureConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B6E5A7431D1252D700F6AEC1 /* PLVideoCaptureConfiguration.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,10 +54,6 @@
 		6003F597195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F599195388D20070C39A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6003F59B195388D20070C39A /* PLStreamingKit-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PLStreamingKit-Prefix.pch"; sourceTree = "<group>"; };
-		6003F59C195388D20070C39A /* PLAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PLAppDelegate.h; sourceTree = "<group>"; };
-		6003F59D195388D20070C39A /* PLAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PLAppDelegate.m; sourceTree = "<group>"; };
-		6003F5A5195388D20070C39A /* PLViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PLViewController.h; sourceTree = "<group>"; };
-		6003F5A6195388D20070C39A /* PLViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PLViewController.m; sourceTree = "<group>"; };
 		6003F5A8195388D20070C39A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		6003F5AE195388D20070C39A /* PLStreamingKit_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PLStreamingKit_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -60,17 +62,35 @@
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		726D8AABC20DEE3C1E38BA86 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		90328B7BA6F90D2320B2671B /* Pods-PLStreamingKit_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PLStreamingKit_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-PLStreamingKit_Example/Pods-PLStreamingKit_Example.release.xcconfig"; sourceTree = "<group>"; };
+		B6E5A70D1D1246AD00F6AEC1 /* PLAudioCaptureConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLAudioCaptureConfiguration.h; sourceTree = "<group>"; };
+		B6E5A70E1D1246AD00F6AEC1 /* PLCameraFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCameraFilter.h; sourceTree = "<group>"; };
+		B6E5A70F1D1246AD00F6AEC1 /* PLCameraFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLCameraFilter.m; sourceTree = "<group>"; };
+		B6E5A7101D1246AD00F6AEC1 /* PLCameraSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCameraSource.h; sourceTree = "<group>"; };
+		B6E5A7111D1246AD00F6AEC1 /* PLCameraSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLCameraSource.m; sourceTree = "<group>"; };
+		B6E5A7121D1246AD00F6AEC1 /* PLCameraStreamingKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCameraStreamingKit.h; sourceTree = "<group>"; };
+		B6E5A7131D1246AD00F6AEC1 /* PLCameraStreamingSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCameraStreamingSession.h; sourceTree = "<group>"; };
+		B6E5A7141D1246AD00F6AEC1 /* PLCameraStreamingSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLCameraStreamingSession.m; sourceTree = "<group>"; };
+		B6E5A7151D1246AD00F6AEC1 /* PLGPUImageCameraFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLGPUImageCameraFilter.h; sourceTree = "<group>"; };
+		B6E5A7161D1246AD00F6AEC1 /* PLGPUImageCameraFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLGPUImageCameraFilter.m; sourceTree = "<group>"; };
+		B6E5A7191D1246AD00F6AEC1 /* PLMicrophoneSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMicrophoneSource.h; sourceTree = "<group>"; };
+		B6E5A71A1D1246AD00F6AEC1 /* PLMicrophoneSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMicrophoneSource.m; sourceTree = "<group>"; };
+		B6E5A71B1D1246AD00F6AEC1 /* PLSourceAccessProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSourceAccessProtocol.h; sourceTree = "<group>"; };
+		B6E5A71C1D1246AD00F6AEC1 /* PLVideoCaptureConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLVideoCaptureConfiguration.h; sourceTree = "<group>"; };
+		B6E5A7301D1251C300F6AEC1 /* PLAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLAppDelegate.h; sourceTree = "<group>"; };
+		B6E5A7311D1251C300F6AEC1 /* PLAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLAppDelegate.m; sourceTree = "<group>"; };
+		B6E5A7321D1251C300F6AEC1 /* PLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLViewController.h; sourceTree = "<group>"; };
+		B6E5A7331D1251C300F6AEC1 /* PLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLViewController.m; sourceTree = "<group>"; };
+		B6E5A7341D1251C300F6AEC1 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		B6E5A7351D1251C300F6AEC1 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		B6E5A73A1D1251F400F6AEC1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "Base.lproj/Launch Screen.storyboard"; sourceTree = "<group>"; };
+		B6E5A73C1D1251F400F6AEC1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
+		B6E5A7421D1252D700F6AEC1 /* PLAudioCaptureConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLAudioCaptureConfiguration.m; sourceTree = "<group>"; };
+		B6E5A7431D1252D700F6AEC1 /* PLVideoCaptureConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLVideoCaptureConfiguration.m; sourceTree = "<group>"; };
 		C261999133CAF8EA618E683B /* Pods_PLStreamingKit_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PLStreamingKit_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2C4CA0BEF6DCF1A07E133B9 /* Pods-PLStreamingKit_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PLStreamingKit_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PLStreamingKit_Tests/Pods-PLStreamingKit_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		DFBE70A22F49337257877591 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		E88575D1C81AA75AE375ADC7 /* Pods-PLStreamingKit_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PLStreamingKit_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PLStreamingKit_Example/Pods-PLStreamingKit_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		E91AE00F1BEA1A3100F9975B /* PLMasterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMasterViewController.h; sourceTree = "<group>"; };
-		E91AE0101BEA1A3100F9975B /* PLMasterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMasterViewController.m; sourceTree = "<group>"; };
-		E91AE0121BEA1C8800F9975B /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
-		E9F4CB9D1C8E855400E0ED62 /* PLGPUImageFilterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLGPUImageFilterViewController.h; sourceTree = "<group>"; };
-		E9F4CB9E1C8E855400E0ED62 /* PLGPUImageFilterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLGPUImageFilterViewController.m; sourceTree = "<group>"; };
 		F3D18A28DBDD5503F394F2A6 /* Pods_PLStreamingKit_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PLStreamingKit_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB2FD26889BE1CCF3A0A1361 /* Pods-PLStreamingKit_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PLStreamingKit_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PLStreamingKit_Tests/Pods-PLStreamingKit_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -138,15 +158,14 @@
 		6003F593195388D20070C39A /* Example for PLStreamingKit */ = {
 			isa = PBXGroup;
 			children = (
-				6003F59C195388D20070C39A /* PLAppDelegate.h */,
-				6003F59D195388D20070C39A /* PLAppDelegate.m */,
-				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
-				E91AE00F1BEA1A3100F9975B /* PLMasterViewController.h */,
-				E91AE0101BEA1A3100F9975B /* PLMasterViewController.m */,
-				6003F5A5195388D20070C39A /* PLViewController.h */,
-				6003F5A6195388D20070C39A /* PLViewController.m */,
-				E9F4CB9D1C8E855400E0ED62 /* PLGPUImageFilterViewController.h */,
-				E9F4CB9E1C8E855400E0ED62 /* PLGPUImageFilterViewController.m */,
+				B6E5A70C1D1246AD00F6AEC1 /* PLCameraStreamingKit */,
+				B6E5A73B1D1251F400F6AEC1 /* Main_iPhone.storyboard */,
+				B6E5A7301D1251C300F6AEC1 /* PLAppDelegate.h */,
+				B6E5A7311D1251C300F6AEC1 /* PLAppDelegate.m */,
+				B6E5A7321D1251C300F6AEC1 /* PLViewController.h */,
+				B6E5A7331D1251C300F6AEC1 /* PLViewController.m */,
+				B6E5A7341D1251C300F6AEC1 /* Reachability.h */,
+				B6E5A7351D1251C300F6AEC1 /* Reachability.m */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
 			);
@@ -161,7 +180,7 @@
 				6003F596195388D20070C39A /* InfoPlist.strings */,
 				6003F599195388D20070C39A /* main.m */,
 				6003F59B195388D20070C39A /* PLStreamingKit-Prefix.pch */,
-				E91AE0121BEA1C8800F9975B /* Launch Screen.storyboard */,
+				B6E5A7391D1251F400F6AEC1 /* Launch Screen.storyboard */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -204,6 +223,29 @@
 				C2C4CA0BEF6DCF1A07E133B9 /* Pods-PLStreamingKit_Tests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		B6E5A70C1D1246AD00F6AEC1 /* PLCameraStreamingKit */ = {
+			isa = PBXGroup;
+			children = (
+				B6E5A70D1D1246AD00F6AEC1 /* PLAudioCaptureConfiguration.h */,
+				B6E5A70E1D1246AD00F6AEC1 /* PLCameraFilter.h */,
+				B6E5A70F1D1246AD00F6AEC1 /* PLCameraFilter.m */,
+				B6E5A7101D1246AD00F6AEC1 /* PLCameraSource.h */,
+				B6E5A7111D1246AD00F6AEC1 /* PLCameraSource.m */,
+				B6E5A7121D1246AD00F6AEC1 /* PLCameraStreamingKit.h */,
+				B6E5A7131D1246AD00F6AEC1 /* PLCameraStreamingSession.h */,
+				B6E5A7141D1246AD00F6AEC1 /* PLCameraStreamingSession.m */,
+				B6E5A7151D1246AD00F6AEC1 /* PLGPUImageCameraFilter.h */,
+				B6E5A7161D1246AD00F6AEC1 /* PLGPUImageCameraFilter.m */,
+				B6E5A7191D1246AD00F6AEC1 /* PLMicrophoneSource.h */,
+				B6E5A71A1D1246AD00F6AEC1 /* PLMicrophoneSource.m */,
+				B6E5A71B1D1246AD00F6AEC1 /* PLSourceAccessProtocol.h */,
+				B6E5A7421D1252D700F6AEC1 /* PLAudioCaptureConfiguration.m */,
+				B6E5A7431D1252D700F6AEC1 /* PLVideoCaptureConfiguration.m */,
+				B6E5A71C1D1246AD00F6AEC1 /* PLVideoCaptureConfiguration.h */,
+			);
+			path = PLCameraStreamingKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -298,9 +340,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
-				E91AE0131BEA1C8800F9975B /* Launch Screen.storyboard in Resources */,
+				B6E5A73E1D1251F400F6AEC1 /* Main_iPhone.storyboard in Resources */,
+				B6E5A73D1D1251F400F6AEC1 /* Launch Screen.storyboard in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -443,11 +485,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6003F59E195388D20070C39A /* PLAppDelegate.m in Sources */,
-				E9F4CB9F1C8E855400E0ED62 /* PLGPUImageFilterViewController.m in Sources */,
-				6003F5A7195388D20070C39A /* PLViewController.m in Sources */,
-				E91AE0111BEA1A3100F9975B /* PLMasterViewController.m in Sources */,
+				B6E5A7221D1246AD00F6AEC1 /* PLMicrophoneSource.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
+				B6E5A7441D1252D700F6AEC1 /* PLAudioCaptureConfiguration.m in Sources */,
+				B6E5A7361D1251C300F6AEC1 /* PLAppDelegate.m in Sources */,
+				B6E5A71F1D1246AD00F6AEC1 /* PLCameraStreamingSession.m in Sources */,
+				B6E5A7381D1251C300F6AEC1 /* Reachability.m in Sources */,
+				B6E5A7201D1246AD00F6AEC1 /* PLGPUImageCameraFilter.m in Sources */,
+				B6E5A71D1D1246AD00F6AEC1 /* PLCameraFilter.m in Sources */,
+				B6E5A71E1D1246AD00F6AEC1 /* PLCameraSource.m in Sources */,
+				B6E5A7371D1251C300F6AEC1 /* PLViewController.m in Sources */,
+				B6E5A7451D1252D700F6AEC1 /* PLVideoCaptureConfiguration.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,6 +532,22 @@
 				6003F5B9195388D20070C39A /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		B6E5A7391D1251F400F6AEC1 /* Launch Screen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6E5A73A1D1251F400F6AEC1 /* Base */,
+			);
+			name = "Launch Screen.storyboard";
+			sourceTree = "<group>";
+		};
+		B6E5A73B1D1251F400F6AEC1 /* Main_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6E5A73C1D1251F400F6AEC1 /* Base */,
+			);
+			name = Main_iPhone.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

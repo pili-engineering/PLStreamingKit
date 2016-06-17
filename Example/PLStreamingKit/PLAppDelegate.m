@@ -1,23 +1,28 @@
 //
 //  PLAppDelegate.m
-//  PLStreamingKit
+//  PLCameraStreamingKit
 //
-//  Created by 0dayZh on 11/04/2015.
-//  Copyright (c) 2015 0dayZh. All rights reserved.
+//  Created on 01/10/2015.
+//  Copyright (c) Pili Engineering, Qiniu Inc. All rights reserved.
 //
 
 #import "PLAppDelegate.h"
-#import <PLStreamingKit/PLStreamingKit.h>
+#import <PLStreamingKit/PLStreamingEnv.h>
+#import <KSCrash/KSCrashInstallationStandard.h>
 
 @implementation PLAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    KSCrashInstallationStandard* installation = [KSCrashInstallationStandard sharedInstance];
+    installation.url = [NSURL URLWithString:@"https://collector.bughd.com/kscrash?key=a4ae5d97b578c3b2bc7b0e15319cda1e"];
+    [installation install];
+    [installation sendAllReportsWithCompletion:nil];
     [PLStreamingEnv initEnv];
     // Override point for customization after application launch.
     return YES;
 }
-
+							
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -26,7 +31,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 
