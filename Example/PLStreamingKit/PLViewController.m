@@ -109,9 +109,7 @@ PLStreamingSendingBufferDelegate
 
     NSDictionary *streamJSON = nil;
     
-    NSURL *streamCloudURL = [NSURL URLWithString:@"http://pili-demo.qiniu.com/api/stream"];
-    
-    PLStream *stream = [PLStream streamWithJSON:[self _createStreamObjectFromServerWithURL:streamCloudURL]];
+    PLStream *stream = [PLStream streamWithJSON:streamJSON];
     
     void (^permissionBlock)(void) = ^{
         dispatch_async(self.sessionQueue, ^{
