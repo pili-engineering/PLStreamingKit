@@ -302,7 +302,7 @@ PLVideoStreamingConfiguration *videoConfiguration = [[PLVideoStreamingConfigurat
     @abstract   音频编码推流质量 high 1。
 
     @discussion 具体参数 audio bitrate: 64Kbps。
- 
+
     @since      v1.0.0
  */
 extern NSString *kPLAudioStreamingQualityHigh1;
@@ -312,7 +312,7 @@ extern NSString *kPLAudioStreamingQualityHigh1;
     @abstract   音频编码推流质量 high 2。
 
     @discussion 具体参数 audio bitrate: 96Kbps。
- 
+
     @since      v1.0.0
  */
 extern NSString *kPLAudioStreamingQualityHigh2;
@@ -320,9 +320,9 @@ extern NSString *kPLAudioStreamingQualityHigh2;
 /*!
  @constant   kPLAudioStreamingQualityHigh3
  @abstract   音频编码推流质量 high 3。
- 
+
  @discussion 具体参数 audio bitrate: 128Kbps。
- 
+
  @since      v1.0.0
  */
 extern NSString *kPLAudioStreamingQualityHigh3;
@@ -422,7 +422,7 @@ buffer 是一个可以缓存待发送内容的队列，它按照帧数作为缓�
 我们建议使用 CocoaPods 导入，如果由于特殊原因需要手动导入，可以按照如下步骤进行：
 
  - 将 Pod 目录下的文件加入到工程中；
- - 将 https://github.com/qiniu/happy-dns-objc HappyDNS 目录下的所有文件加入到工程中； 
+ - 将 https://github.com/qiniu/happy-dns-objc HappyDNS 目录下的所有文件加入到工程中；
  - 将 https://github.com/pili-engineering/pili-librtmp Pod 目录下的所有文件加入到工程中；
  - 在工程对应 TARGET 中，右侧 Tab 选择 "Build Phases"，在 "Link Binary With Libraries" 中加入 UIKit、AVFoundation、CoreGraphics、CFNetwork、CoreMedia、AudioToolbox 这些 framework，并加入 libc++.tdb、libz.tdb 及 libresolv.tbd；
  - 在工程对应 TARGET 中，右侧 Tab 选择 "Build Settings"，在 "Other Linker Flags" 中加入 "-ObjC" 选项；
@@ -440,6 +440,9 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.2.3 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.2.3.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.2.3.md))
+  - 功能
+    - 更新底层依赖的 pili-librtmp 到 v1.0.3
 - 1.2.2 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.2.2.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.2.2.md))
   - 功能
     - 支持初始化的时候传入 stream 为 nil
