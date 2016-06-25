@@ -158,7 +158,7 @@ IMPLEMENT_EXCLUSIVE_SHARED_INSTANCE(KSCrash)
         self.searchThreadNames = NO;
         self.searchQueueNames = NO;
         self.introspectMemory = YES;
-        self.catchZombies = YES;
+        self.catchZombies = NO;
         self.maxStoredReports = 5;
     }
     return self;
@@ -534,7 +534,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
 
 //! Project version number for KSCrashFramework.
-const double KSCrashFrameworkVersionNumber = 1.58;
+const double KSCrashFrameworkVersionNumber = 1.60;
 
 //! Project version string for KSCrashFramework.
-const unsigned char KSCrashFrameworkVersionString[] = "1.5.8";
+const unsigned char KSCrashFrameworkVersionString[] = "1.6.0";
