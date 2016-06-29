@@ -65,11 +65,11 @@ PODS:
   - KSCrash/Reporting/Tools (1.6.0):
     - KSCrash/Recording
   - pili-librtmp (1.0.3)
-  - PLStreamingKit (1.2.3):
+  - PLStreamingKit (1.2.4):
     - HappyDNS
     - pili-librtmp
-    - PLStreamingKit/precompiled (= 1.2.3)
-  - PLStreamingKit/precompiled (1.2.3):
+    - PLStreamingKit/precompiled (= 1.2.4)
+  - PLStreamingKit/precompiled (1.2.4):
     - HappyDNS
     - pili-librtmp
 
@@ -87,6 +87,6 @@ SPEC CHECKSUMS:
   HappyDNS: 6f8cf46fa7c0b98a6591fe8ecb2e08d9907a6e8b
   KSCrash: 73fc2bcec2b6bcd1d948d200e11904c39d532a0e
   pili-librtmp: 50faa17413c635cca5ceccb1a8f9f6acc6587a45
-  PLStreamingKit: 78493718defffd1711dce80d7872e65050a29bac
+  PLStreamingKit: c8574decbacb981e36e5b95314c991a3b5d02125
 
 COCOAPODS: 0.39.0
