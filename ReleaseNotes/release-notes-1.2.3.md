@@ -1,4 +1,4 @@
-# PLStreamingKit Release Notes for 1.2.2
+# PLStreamingKit Release Notes for 1.2.3
 
 ## 内容
 

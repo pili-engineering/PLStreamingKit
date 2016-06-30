@@ -440,6 +440,11 @@ PLStreamingKit 使用 HeaderDoc 注释来做文档支持。
 
 ## 版本历史
 
+- 1.2.4 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.2.4.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.2.4.md))
+- 功能
+  - 新增对每次传入非 1024 frame PCM数据进行编码的功能
+- 缺陷
+  - 修复音视频时间戳偶尔出现的非单调递增的缺陷
 - 1.2.3 ([Release Notes](https://github.com/pili-engineering/PLStreamingKit/blob/master/ReleaseNotes/release-notes-1.2.3.md) && [API Diffs](https://github.com/pili-engineering/PLStreamingKit/blob/master/APIDiffs/api-diffs-1.2.3.md))
   - 功能
     - 更新底层依赖的 pili-librtmp 到 v1.0.3
