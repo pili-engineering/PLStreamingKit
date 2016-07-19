@@ -2,6 +2,7 @@
 
 #import "QNDnsManager.h"
 #import "QNDomain.h"
+#import "QNLruCache.h"
 #import "QNNetworkInfo.h"
 #import "QNRecord.h"
 #import "QNResolverDelegate.h"

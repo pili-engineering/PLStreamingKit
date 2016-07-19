@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "PLStreamingKit"
-  s.version          = "1.2.4"
+  s.version          = "1.2.5"
   s.summary          = "Pili iOS streaming framework via RTMP."
   s.homepage         = "https://github.com/pili-engineering/PLStreamingKit"
   s.license          = 'Apache License, Version 2.0'
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Pod/Library/include/**/*.h'
 
   s.dependency 'HappyDNS'
-  s.dependency 'pili-librtmp'
+  s.dependency 'pili-librtmp', '1.0.3.1'
   s.frameworks = ['UIKit', 'AVFoundation', 'CoreGraphics', 'CFNetwork', 'AudioToolbox', 'CoreMedia', 'VideoToolbox']
   s.libraries = 'z', 'c++', 'resolv'
 
