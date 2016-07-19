@@ -15,6 +15,7 @@
 #import "KSCrashReportWriter.h"
 #import "KSCrashState.h"
 #import "KSCrashType.h"
+#import "KSSystemInfo.h"
 #import "KSCrashSentry.h"
 #import "KSArchSpecific.h"
 #import "KSJSONCodecObjC.h"
