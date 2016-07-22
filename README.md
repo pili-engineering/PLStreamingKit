@@ -20,6 +20,10 @@ PLStreamingKit 不包括摄像头、麦克风等设备相关的资源获取，�
 - [x] 提供发送 buffer
 - [x] 与 GPUImage 轻松对接
 
+## PLStreamingKit Wiki
+
+请参考 Wiki 文档：[PLStreamingKit 开发指南](https://github.com/pili-engineering/PLStreamingKit/wiki)
+
 ## 内容摘要
 
 - [快速开始](#快速开始)
